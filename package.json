@@ -1,0 +1,18 @@
+{
+  "name": "doc-upload-prototype",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Interactive coded prototype of the OneApp Document Upload (Option B) guided flow.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "playwright": "^1.61.1",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}

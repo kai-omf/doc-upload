@@ -1,0 +1,37 @@
+/* Global app baseline. All visual values come from --omf-cx-* tokens. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Zero default UA margins on headings/paragraphs — all spacing comes from explicit layout gaps. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+body {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  color: var(--omf-cx-core-color-body-default, #4b576c);
+  background: var(--omf-cx-core-color-surface-base, #ffffff);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Visible, consistent focus for keyboard users (WCAG 2.2 AA). */
+:focus-visible {
+  outline: 3px solid var(--omf-cx-core-color-primary, #0e45e3);
+  outline-offset: 2px;
+}

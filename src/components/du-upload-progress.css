@@ -1,0 +1,61 @@
+du-upload-progress {
+  display: block;
+}
+du-upload-progress .wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-group-small, 4px);
+}
+du-upload-progress .track {
+  position: relative;
+  height: 8px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: var(--omf-cx-core-color-line-muted, #e8eaec);
+}
+du-upload-progress .fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 8px;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: var(--omf-cx-core-color-primary, #0e45e3);
+  overflow: hidden;
+  transition: width 200ms var(--du-ease-out, ease-out);
+}
+/* A light sweep across the filled portion signals live activity while uploading. */
+du-upload-progress .fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.45),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: du-shimmer 1.2s var(--du-ease-standard, ease) infinite;
+}
+@keyframes du-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+du-upload-progress .caption {
+  text-align: right;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+@media (prefers-reduced-motion: reduce) {
+  du-upload-progress .fill {
+    transition: none;
+  }
+}

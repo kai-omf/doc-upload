@@ -1,0 +1,70 @@
+du-file-row {
+  display: block;
+}
+du-file-row .row {
+  display: flex;
+  gap: var(--omf-cx-gap-row-default, 16px);
+  align-items: center;
+  padding: 12px;
+  background: var(--omf-cx-core-color-surface-base, #ffffff);
+  border: 1px solid var(--omf-cx-core-color-line-muted, #e8eaec);
+  border-radius: var(--omf-cx-shape-radius-medium-1, 12px);
+}
+du-file-row .icon-wrap {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
+  color: var(--omf-cx-core-color-body-info, #0e45e3);
+}
+du-file-row .text {
+  flex: 1 0 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-group-small, 4px);
+}
+du-file-row .name {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-label-small-1-size, 15px);
+  line-height: var(--omf-cx-font-label-small-1-line-height, 24px);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+du-file-row .meta {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+du-file-row .actions {
+  flex: none;
+  display: flex;
+  gap: var(--omf-cx-gap-row-small, 8px);
+  align-items: center;
+}
+du-file-row .remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+  cursor: pointer;
+}
+du-file-row .remove:hover {
+  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}

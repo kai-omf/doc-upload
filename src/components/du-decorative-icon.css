@@ -1,0 +1,25 @@
+du-decorative-icon {
+  display: inline-flex;
+  flex: none;
+}
+du-decorative-icon .tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
+  color: var(--omf-cx-core-color-body-info, #0e45e3);
+}
+du-decorative-icon:not([size]) .tile,
+du-decorative-icon[size="small"] .tile {
+  width: 40px;
+  height: 40px;
+}
+du-decorative-icon[size="medium"] .tile {
+  width: 48px;
+  height: 48px;
+}
+du-decorative-icon[size="large"] .tile {
+  width: 56px;
+  height: 56px;
+}

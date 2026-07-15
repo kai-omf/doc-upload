@@ -1,0 +1,166 @@
+du-web-nav {
+  display: block;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+}
+du-web-nav .bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--omf-cx-core-color-surface-base, #ffffff);
+  border-bottom: 1px solid var(--omf-cx-core-color-line-moderate, #cbd5e1);
+}
+du-web-nav .bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1152px;
+  margin: 0 auto;
+}
+/* Logo */
+du-web-nav .logo {
+  display: block;
+  width: auto;
+  flex: none;
+}
+du-web-nav .logo-lg {
+  height: 46px; /* Figma desktop web bar, nudged up to balance the global nav */
+  transform: translateY(3px); /* drop to sit on the nav-label baseline */
+}
+du-web-nav .logo-sm {
+  height: 48px; /* Figma mobile web bar (132:5323) */
+}
+
+/* Desktop bar */
+du-web-nav .desktop-bar .bar-inner {
+  height: 80px;
+  padding: 0 32px;
+}
+du-web-nav .nav-left {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+du-web-nav .primary-nav {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+du-web-nav .primary-nav a {
+  font-size: var(--omf-cx-font-label-default-size, 17px);
+  line-height: var(--omf-cx-font-label-default-line-height, 24px);
+  color: var(--omf-cx-core-color-body-default, #4b576c);
+  text-decoration: none;
+  padding: 12px 4px 4px;
+}
+du-web-nav .primary-nav a.current {
+  color: var(--omf-cx-core-color-body-selected, #002169);
+  border-bottom: 2px solid var(--omf-cx-core-color-body-selected, #002169);
+}
+du-web-nav .nav-right {
+  display: flex;
+  align-items: center;
+  gap: var(--omf-cx-gap-row-default, 16px);
+}
+du-web-nav .utility {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+du-web-nav .util-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: var(--omf-cx-shape-radius-medium-1, 12px);
+  color: var(--omf-cx-core-color-body-default, #4b576c);
+  font-size: var(--omf-cx-font-label-default-size, 17px);
+}
+du-web-nav .util-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
+  color: var(--omf-cx-core-color-body-info, #0e45e3);
+}
+du-web-nav .logout {
+  height: 40px;
+  padding: 0 24px;
+  border: 1px solid var(--omf-cx-core-color-line-secondary, #406def);
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: transparent;
+  color: var(--omf-cx-core-color-on-secondary, #0e45e3);
+  font-family: inherit;
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-label-small-1-size, 15px);
+  cursor: pointer;
+}
+
+/* Mobile bar */
+du-web-nav .mobile-bar .bar-inner {
+  height: 64px;
+  padding: 0 16px;
+}
+du-web-nav .menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: var(--omf-cx-core-color-body-selected, #002169);
+  font-family: inherit;
+  font-size: var(--omf-cx-font-label-small-1-size, 15px);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  cursor: pointer;
+}
+
+/* Contextual back row */
+du-web-nav .back-row {
+  background: var(--omf-cx-core-color-surface-base, #ffffff);
+}
+du-web-nav .back-row-inner {
+  width: 100%;
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 8px 16px;
+}
+du-web-nav .back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: var(--omf-cx-core-color-body-info, #0e45e3);
+  font-family: inherit;
+  font-size: var(--omf-cx-font-label-small-1-size, 15px);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  cursor: pointer;
+  border-radius: var(--omf-cx-shape-radius-default, 8px);
+}
+du-web-nav .back-btn:hover {
+  background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
+}
+
+/* Breakpoint toggle at 840px */
+du-web-nav .desktop-bar {
+  display: none;
+}
+du-web-nav .mobile-bar {
+  display: block;
+}
+@media (min-width: 840px) {
+  du-web-nav .desktop-bar {
+    display: block;
+  }
+  du-web-nav .mobile-bar {
+    display: none;
+  }
+  du-web-nav .back-row-inner {
+    padding: 8px 32px;
+  }
+}

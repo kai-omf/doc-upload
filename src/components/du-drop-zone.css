@@ -1,0 +1,56 @@
+du-drop-zone {
+  display: block;
+}
+du-drop-zone .zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--omf-cx-gap-tile-small, 12px);
+  padding: var(--omf-cx-padding-surface-base, 16px);
+  background: var(--omf-cx-core-color-surface-base, #ffffff);
+  /* NB: --omf-cx-stroke-default is exported as 1.4rem (~22px) in tokens.css — a token bug.
+     The design intent is a hairline, so use a literal 1.4px here. */
+  border: 1.4px solid var(--omf-cx-core-color-line-default, #7e93b4);
+  border-radius: var(--omf-cx-shape-radius-default, 8px);
+  text-align: center;
+  transition: border-color 180ms var(--du-ease-standard, ease),
+    background-color 180ms var(--du-ease-standard, ease);
+}
+du-drop-zone .zone:hover {
+  border-color: var(--omf-cx-core-color-line-emphasis, #62738c);
+}
+du-drop-zone .zone.is-dragover {
+  border-color: var(--omf-cx-core-color-primary, #0e45e3);
+  background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
+}
+du-drop-zone .instructions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--omf-cx-gap-group-small, 4px);
+}
+du-drop-zone .headline {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-body-default-size, 17px);
+  line-height: var(--omf-cx-font-body-default-line-height, 24px);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+du-drop-zone .hint {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+du-drop-zone input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

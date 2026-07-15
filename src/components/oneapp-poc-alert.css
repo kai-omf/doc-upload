@@ -1,0 +1,69 @@
+oneapp-poc-alert {
+  display: block;
+}
+oneapp-poc-alert .alert {
+  display: flex;
+  gap: var(--omf-cx-gap-row-default, 16px);
+  align-items: flex-start;
+  padding: var(--omf-cx-padding-surface-base, 16px);
+  border-radius: var(--omf-cx-shape-radius-default, 8px);
+  border: 1px solid transparent;
+}
+oneapp-poc-alert .icon {
+  flex: none;
+  display: inline-flex;
+}
+oneapp-poc-alert .icon svg {
+  width: 24px;
+  height: 24px;
+}
+oneapp-poc-alert .body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-group-small, 4px);
+  min-width: 0;
+}
+oneapp-poc-alert .heading {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-label-default-size, 16px);
+  line-height: var(--omf-cx-font-label-default-line-height, 24px);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+oneapp-poc-alert .supporting {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-size: var(--omf-cx-font-body-supporting-size, 14px);
+  line-height: var(--omf-cx-font-body-supporting-line-height, 20px);
+  color: var(--omf-cx-core-color-body-default, #4b576c);
+}
+
+/* Type theming */
+oneapp-poc-alert[type="info"] .alert,
+oneapp-poc-alert:not([type]) .alert {
+  background: var(--omf-cx-core-color-surface-info, #f3f7fc);
+  border-color: var(--omf-cx-core-color-line-info, #ccdfff);
+}
+oneapp-poc-alert[type="info"] .icon {
+  color: var(--omf-cx-core-color-body-info, #0e45e3);
+}
+oneapp-poc-alert[type="success"] .alert {
+  background: var(--omf-cx-core-color-surface-positive, #eefbf6);
+  border-color: var(--omf-cx-core-color-line-positive, #b5f2db);
+}
+oneapp-poc-alert[type="success"] .icon {
+  color: var(--omf-cx-core-color-body-positive, #008353);
+}
+oneapp-poc-alert[type="warning"] .alert {
+  background: var(--omf-cx-core-color-surface-caution, #fcfaeb);
+  border-color: var(--omf-cx-core-color-line-caution, #f7e9a8);
+}
+oneapp-poc-alert[type="warning"] .icon {
+  color: var(--omf-cx-core-color-body-caution, #856b05);
+}
+oneapp-poc-alert[type="error"] .alert {
+  background: var(--omf-cx-core-color-surface-negative, #fbf3f1);
+  border-color: var(--omf-cx-core-color-line-negative, #ffc8c2);
+}
+oneapp-poc-alert[type="error"] .icon {
+  color: var(--omf-cx-core-color-body-negative, #d62940);
+}

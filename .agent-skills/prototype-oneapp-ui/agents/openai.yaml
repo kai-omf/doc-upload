@@ -1,0 +1,4 @@
+interface:
+  display_name: "OneApp Prototype UI"
+  short_description: "Build fast, component-driven UI prototypes"
+  default_prompt: "Use $prototype-oneapp-ui to design or build an accessible, component-driven prototype in this repository."

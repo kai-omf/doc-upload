@@ -1,0 +1,21 @@
+du-button-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--omf-cx-gap-row-small, 8px);
+  width: 100%;
+  padding-top: var(--omf-cx-gap-y-section, 16px);
+  padding-bottom: 40px;
+}
+du-button-stack .stack-note {
+  margin-bottom: 4px;
+  text-align: center;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+du-button-stack > oneapp-poc-button[full] {
+  width: 100%;
+}

@@ -1,0 +1,212 @@
+.headline-page {
+  font-family: var(--omf-global-core-font-family-primary, "sans-serif");
+  font-size: var(--omf-cx-font-headline-page-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-medium);
+  line-height: var(--omf-cx-font-headline-page-line-height);
+  letter-spacing: var(--omf-cx-font-headline-page-letter-spacing);
+  color: var(--omf-cx-core-color-body-emphasis);
+}
+.headline-section {
+  font-family: var(--omf-global-core-font-family-primary, "sans-serif");
+  font-size: var(--omf-cx-font-headline-section-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-bold);
+  line-height: var(--omf-cx-font-headline-section-line-height);
+  letter-spacing: var(--omf-cx-font-headline-section-letter-spacing);
+  color: var(--omf-cx-core-color-body-emphasis);
+}
+.headline-tile {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-headline-tile-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-medium);
+  line-height: var(--omf-cx-font-headline-tile-line-height);
+  letter-spacing: var(--omf-cx-font-headline-tile-letter-spacing);
+  color: var(--omf-cx-core-color-body-emphasis);
+}
+.body-default {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-body-default-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-regular);
+  line-height: var(--omf-cx-font-body-default-line-height);
+  letter-spacing: var(--omf-cx-font-body-default-letter-spacing);
+  color: var(--omf-cx-core-color-body-default);
+}
+.body-default.medium-weight {
+  font-weight: var(--omf-cx-font-weight-medium);
+}
+
+.body-default.emphasis-color {
+  color: var(--omf-cx-core-color-body-emphasis);
+}
+
+.body-supporting {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-body-supporting-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-regular);
+  line-height: var(--omf-cx-font-body-supporting-line-height);
+  letter-spacing: var(--omf-cx-font-body-supporting-letter-spacing);
+  color: var(--omf-cx-core-color-body-default);
+}
+
+.body-supporting.medium-weight {
+  font-weight: var(--omf-cx-font-weight-medium);
+}
+
+.body-supporting.moderate-color {
+  color: var(--omf-cx-core-color-body-moderate);
+}
+
+.body-caption {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-body-caption-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-regular);
+  line-height: var(--omf-cx-font-body-caption-line-height);
+  letter-spacing: var(--omf-cx-font-body-caption-letter-spacing);
+  color: var(--omf-cx-core-color-body-moderate);
+}
+.data-primary {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-data-primary-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-bold);
+  line-height: var(--omf-cx-font-data-primary-line-height);
+  letter-spacing: var(--omf-cx-font-data-primary-letter-spacing);
+  color: var(--omf-cx-core-color-body-emphasis);
+}
+.data-secondary {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-data-secondary-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-bold);
+  line-height: var(--omf-cx-font-data-secondary-line-height);
+  letter-spacing: var(--omf-cx-font-data-secondary-letter-spacing);
+  color: var(--omf-cx-core-color-body-emphasis);
+}
+.link-default {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-body-default-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-medium);
+  line-height: var(--omf-cx-font-body-default-line-height);
+  letter-spacing: var(--omf-cx-font-body-default-letter-spacing);
+  color: var(--omf-cx-core-color-primary);
+  text-decoration: underline;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: auto;
+  text-decoration-thickness: 8.5%;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
+}
+.link-supporting {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-body-supporting-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-medium);
+  line-height: var(--omf-cx-font-body-supporting-line-height);
+  letter-spacing: var(--omf-cx-font-body-supporting-letter-spacing);
+  color: var(--omf-cx-core-color-primary);
+  text-decoration: underline;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: auto;
+  text-decoration-thickness: 8.5%;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
+}
+.link-caption {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-body-caption-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-medium);
+  line-height: var(--omf-cx-font-body-caption-line-height);
+  letter-spacing: var(--omf-cx-font-body-caption-letter-spacing);
+  color: var(--omf-cx-core-color-default);
+  text-decoration: underline;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: auto;
+  text-decoration-thickness: 8.5%;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
+}
+.label-large-1 {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-label-large-1-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-regular);
+  line-height: var(--omf-cx-font-label-large-1-line-height);
+  letter-spacing: var(--omf-cx-font-label-large-1-letter-spacing);
+}
+.label-large-1.medium-weight {
+  font-weight: var(--omf-cx-font-weight-medium);
+}
+
+.label-large-1.bold-weight {
+  font-weight: var(--omf-cx-font-weight-bold);
+}
+.label-default {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-label-default-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-regular);
+  line-height: var(--omf-cx-font-label-default-line-height);
+  letter-spacing: var(--omf-cx-font-label-default-letter-spacing);
+}
+.label-default.medium-weight {
+  font-weight: var(--omf-cx-font-weight-medium);
+}
+
+.label-default.bold-weight {
+  font-weight: var(--omf-cx-font-weight-bold);
+}
+.label-small-1 {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-label-small-1-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-regular);
+  line-height: var(--omf-cx-font-label-small-1-line-height);
+  letter-spacing: var(--omf-cx-font-label-small-1-letter-spacing);
+}
+.label-small-1.medium-weight {
+  font-weight: var(--omf-cx-font-weight-medium);
+}
+
+.label-small-1.bold-weight {
+  font-weight: var(--omf-cx-font-weight-bold);
+}
+.label-small-2 {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-label-small-2-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-regular);
+  line-height: var(--omf-cx-font-label-small-2-line-height);
+  letter-spacing: var(--omf-cx-font-label-small-2-letter-spacing);
+}
+.label-small-2.medium-weight {
+  font-weight: var(--omf-cx-font-weight-medium);
+}
+
+.label-small-2.bold-weight {
+  font-weight: var(--omf-cx-font-weight-bold);
+}
+.label-small-3 {
+  font-family: var(--omf-global-core-font-family-primary);
+  font-size: var(--omf-cx-font-label-small-3-size);
+  font-style: normal;
+  font-weight: var(--omf-cx-font-weight-regular);
+  line-height: var(--omf-cx-font-label-small-3-line-height);
+  letter-spacing: var(--omf-cx-font-label-small-3-letter-spacing);
+}
+.label-small-3.medium-weight {
+  font-weight: var(--omf-cx-font-weight-medium);
+}
+
+.label-small-3.bold-weight {
+  font-weight: var(--omf-cx-font-weight-bold);
+}

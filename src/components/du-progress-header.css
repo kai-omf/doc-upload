@@ -1,0 +1,42 @@
+du-progress-header {
+  display: block;
+}
+du-progress-header .wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-tile-small, 12px);
+}
+du-progress-header .labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+du-progress-header .title {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-label-small-1-size, 15px);
+  line-height: var(--omf-cx-font-label-small-1-line-height, 24px);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+du-progress-header .count {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+du-progress-header .segments {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+du-progress-header .seg {
+  flex: 1 0 0;
+  min-width: 1px;
+  height: 4px;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: var(--omf-cx-core-color-line-muted, #e8eaec);
+}
+du-progress-header .seg[data-filled] {
+  background: var(--omf-cx-core-color-primary, #0e45e3);
+}

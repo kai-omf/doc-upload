@@ -1,0 +1,48 @@
+oneapp-poc-note-input {
+  display: block;
+}
+oneapp-poc-note-input .field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+oneapp-poc-note-input label {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-label-default-size, 16px);
+  line-height: var(--omf-cx-font-label-default-line-height, 24px);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+oneapp-poc-note-input input {
+  box-sizing: border-box;
+  height: var(--omf-cx-height-component-default, 48px);
+  padding: 0 12px;
+  border-radius: var(--omf-cx-shape-radius-default, 8px);
+  border: 1px solid var(--omf-cx-core-color-line-emphasis, #62738c);
+  background: var(--omf-cx-core-color-surface-base, #ffffff);
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-size: var(--omf-cx-font-body-default-size, 16px);
+  line-height: var(--omf-cx-font-body-default-line-height, 24px);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+oneapp-poc-note-input input::placeholder {
+  color: var(--omf-cx-core-color-body-placeholder, #7e93b4);
+}
+oneapp-poc-note-input input:focus {
+  outline: none;
+  border-color: var(--omf-cx-core-color-primary, #0e45e3);
+  box-shadow: 0 0 0 4px var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
+}
+oneapp-poc-note-input[invalid] input {
+  border-color: var(--omf-cx-core-color-body-negative, #d62940);
+  border-width: 2px;
+}
+oneapp-poc-note-input .message {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-size: var(--omf-cx-font-body-caption-size, 12px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 16px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+oneapp-poc-note-input[invalid] .message {
+  color: var(--omf-cx-core-color-body-negative, #d62940);
+}

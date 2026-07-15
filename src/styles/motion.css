@@ -1,0 +1,135 @@
+/* ============================================================================
+   Motion system for the Document Upload prototype.
+
+   Principles
+   - Motion is functional, not decorative: it shows what changed (a new step, a
+     status, an error) and gives controls a tactile response. It never blocks.
+   - Enter animations run only on the content that actually changes — the focused
+     doc-step, the alerts that just appeared, the completion banner, the success
+     check. The chrome, rail, and persistent info banner stay still.
+   - Durations are short; entrances decelerate (ease-out) so they feel responsive;
+     confirmations get a gentle spring for a moment of delight.
+   - Everything collapses to near-instant under prefers-reduced-motion.
+   ============================================================================ */
+
+:root {
+  --du-dur-fast: 120ms; /* taps, presses, hovers */
+  --du-dur-base: 220ms; /* step + element entrances */
+  --du-dur-slow: 380ms; /* celebratory confirmations */
+
+  --du-ease-standard: cubic-bezier(0.2, 0, 0, 1); /* general movement */
+  --du-ease-out: cubic-bezier(0, 0, 0, 1); /* entrances (decelerate) */
+  --du-ease-in: cubic-bezier(0.3, 0, 1, 1); /* exits (accelerate) */
+  --du-ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1); /* gentle overshoot */
+}
+
+@keyframes du-enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes du-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes du-alert-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes du-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes du-banner-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Doc-step transitions.
+   Default = a calm opacity cross-fade. This covers every desktop swap AND every in-place state
+   change on the same document (select → uploading → uploaded …), so updating the current screen
+   never reads as navigating away. */
+du-app .step {
+  animation: du-fade var(--du-dur-base) var(--du-ease-out) both;
+}
+
+/* Only *navigation* on mobile — drilling into a document or moving to the next one — gets the
+   staggered rise, because there you genuinely arrive at a new screen. `.step--enter` is set by the
+   app only when the active document / view changes, never on an in-place status change. */
+@media (max-width: 839px) {
+  du-app .step--enter {
+    animation: none;
+  }
+  du-app .step--enter > * {
+    animation: du-enter-up var(--du-dur-base) var(--du-ease-out) both;
+  }
+  du-app .step--enter > *:nth-child(2) {
+    animation-delay: 45ms;
+  }
+  du-app .step--enter > *:nth-child(3) {
+    animation-delay: 90ms;
+  }
+  du-app .step--enter > *:nth-child(4) {
+    animation-delay: 135ms;
+  }
+  du-app .step--enter > *:nth-child(n + 5) {
+    animation-delay: 180ms;
+  }
+}
+
+/* Inline validation / failure alerts slide in to draw the eye — but only on mobile navigation and
+   never on desktop, where the panel stays calm. (The persistent info banner is excluded entirely.) */
+@media (max-width: 839px) {
+  du-app .step oneapp-poc-alert {
+    animation: du-alert-in var(--du-dur-base) var(--du-ease-out) both;
+    animation-delay: 45ms;
+  }
+}
+
+/* Completion: the Success banner and the "Uploaded" check arrive with a spring. */
+oneapp-poc-alert[type="success"] {
+  animation: du-banner-pop var(--du-dur-slow) var(--du-ease-spring) both;
+}
+du-app .uploaded-caption svg {
+  animation: du-pop var(--du-dur-slow) var(--du-ease-spring) both;
+  transform-origin: center;
+}
+
+/* Respect the OS "reduce motion" setting — collapse animation + transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
