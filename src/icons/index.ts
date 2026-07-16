@@ -28,7 +28,7 @@ const P: Record<IconName, string> = {
   folder:
     '<path d="M2 11V4.6C2 4.26863 2.26863 4 2.6 4H8.77805C8.92127 4 9.05977 4.05124 9.16852 4.14445L12.3315 6.85555C12.4402 6.94876 12.5787 7 12.722 7H21.4C21.7314 7 22 7.26863 22 7.6V11M2 11V19.4C2 19.7314 2.26863 20 2.6 20H21.4C21.7314 20 22 19.7314 22 19.4V11M2 11H22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
   "page-flip":
-    '<path d="M15 22L5.6 22C5.26863 22 5 21.7314 5 21.4L5 2.6C5 2.26863 5.26863 2 5.6 2L18.4 2C18.7314 2 19 2.26863 19 2.6L19 18M15 22L19 18M15 22L15 18.6C15 18.2686 15.2686 18 15.6 18L19 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
+    '<path d="M12 11H14.5H17" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7H14.5H17" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 15V3.6C8 3.26863 8.26863 3 8.6 3H20.4C20.7314 3 21 3.26863 21 3.6V17C21 19.2091 19.2091 21 17 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 15H8H12.4C12.7314 15 13.0031 15.2668 13.0298 15.5971C13.1526 17.1147 13.7812 21 17 21H8H6C4.34315 21 3 19.6569 3 18V17C3 15.8954 3.89543 15 5 15Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
   trash:
     '<path d="M20 9L18.005 20.3463C17.8369 21.3026 17.0062 22 16.0353 22H7.96474C6.99379 22 6.1631 21.3026 5.99496 20.3463L4 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 6L15.375 6M3 6L8.625 6M8.625 6V4C8.625 2.89543 9.52043 2 10.625 2H13.375C14.4796 2 15.375 2.89543 15.375 4V6M8.625 6L15.375 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
   "chevron-right":
