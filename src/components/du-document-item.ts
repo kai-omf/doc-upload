@@ -7,7 +7,7 @@ import "./du-document-item.css";
 import { icon, type IconName } from "../icons";
 
 const STATUS_GLYPH: Record<string, IconName> = {
-  "not-started": "page",
+  "not-started": "page-flip",
   uploading: "upload",
   uploaded: "check",
   failed: "warning-circle",
@@ -32,7 +32,7 @@ export class DuDocumentItem extends HTMLElement {
     const status = this.getAttribute("status") ?? "not-started";
     const statusLabel = this.getAttribute("status-label") ?? STATUS_LABEL[status] ?? "";
     const active = this.hasAttribute("active");
-    const glyph = STATUS_GLYPH[status] ?? "page";
+    const glyph = STATUS_GLYPH[status] ?? "page-flip";
     this.innerHTML = `
       <button class="item" type="button"${active ? ' aria-current="true"' : ""}>
         <span class="icon-wrap" aria-hidden="true">${icon(glyph, 20)}</span>

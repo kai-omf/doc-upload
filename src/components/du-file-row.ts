@@ -34,7 +34,7 @@ export class DuFileRow extends HTMLElement {
 
     this.innerHTML = `
       <div class="row">
-        <span class="icon-wrap" aria-hidden="true">${icon("page", 20)}</span>
+        <span class="icon-wrap" aria-hidden="true">${icon("page-flip", 20)}</span>
         <div class="text">
           <p class="name">${name}</p>
           <p class="meta">${meta}</p>
