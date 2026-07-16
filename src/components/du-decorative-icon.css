@@ -8,7 +8,7 @@ du-decorative-icon .tile {
   justify-content: center;
   border-radius: var(--omf-cx-shape-radius-full, 999px);
   background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
-  color: var(--omf-cx-core-color-body-info, #0e45e3);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
 }
 du-decorative-icon:not([size]) .tile,
 du-decorative-icon[size="small"] .tile {
