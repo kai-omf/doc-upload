@@ -1,7 +1,7 @@
 du-button-stack {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: var(--omf-cx-gap-row-small, 8px);
   width: 100%;
   padding-top: var(--omf-cx-gap-y-section, 16px);
@@ -16,6 +16,37 @@ du-button-stack .stack-note {
   line-height: var(--omf-cx-font-body-caption-line-height, 20px);
   color: var(--omf-cx-core-color-body-moderate, #62738c);
 }
-du-button-stack > oneapp-poc-button[full] {
+
+/* Button group — mobile: vertical, full-width primary with tertiary beneath. */
+du-button-stack .stack-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--omf-cx-gap-row-small, 8px);
   width: 100%;
+}
+du-button-stack .stack-buttons > oneapp-poc-button[full] {
+  width: 100%;
+}
+/* Button-stack CTAs carry a wider 32px horizontal padding (Figma). */
+du-button-stack oneapp-poc-button .btn {
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+/* Desktop: a right-aligned horizontal row — tertiary/secondary on the left, primary on the right,
+   both sized to content. (Figma "button-stack update", node 267:13921.) */
+@media (min-width: 840px) {
+  du-button-stack {
+    padding-bottom: var(--omf-cx-gap-y-section, 16px);
+  }
+  du-button-stack .stack-buttons {
+    flex-direction: row-reverse; /* DOM is primary-first; reverse puts primary on the right */
+    justify-content: flex-start; /* with row-reverse, packs to the right edge */
+    align-items: center;
+    gap: 4px;
+  }
+  du-button-stack .stack-buttons > oneapp-poc-button[full] {
+    width: auto;
+  }
 }

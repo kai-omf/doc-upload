@@ -236,7 +236,7 @@ export class DuApp extends HTMLElement {
         <div class="banner-wrap">${this.bannerHtml()}</div>
         ${this.progressHeaderHtml()}
         ${this.docListHtml(s.activeDocId)}
-        ${store.allUploaded ? `<du-button-stack class="mobile-done"><oneapp-poc-button hierarchy="primary" full label="Back to home page" data-action="exit"></oneapp-poc-button></du-button-stack>` : ""}`;
+        ${store.allUploaded ? `<du-button-stack class="mobile-done"><div class="stack-buttons"><oneapp-poc-button hierarchy="primary" full label="Back to home page" data-action="exit"></oneapp-poc-button></div></du-button-stack>` : ""}`;
     }
 
     this.innerHTML = "";
@@ -312,6 +312,11 @@ export class DuApp extends HTMLElement {
   private tertiaryBtn(label: string, action: string): string {
     return `<oneapp-poc-button hierarchy="tertiary" label="${escAttr(label)}" data-action="${action}"></oneapp-poc-button>`;
   }
+  // Buttons render primary-first in the DOM; the button-stack CSS lays them out (vertical full-width
+  // on mobile, right-aligned horizontal on desktop). An optional helper note sits above the group.
+  private buttonStack(buttons: string, note?: string): string {
+    return `<du-button-stack>${note ? `<p class="stack-note">${escHtml(note)}</p>` : ""}<div class="stack-buttons">${buttons}</div></du-button-stack>`;
+  }
 
   private docStepHtml(doc: DocState, desktop: boolean, enter: boolean): string {
     const step = enter ? "step step--enter" : "step";
@@ -328,7 +333,7 @@ export class DuApp extends HTMLElement {
           <oneapp-poc-alert type="error" heading="That file can't be added" supporting="${escAttr(doc.message ?? "")}"></oneapp-poc-alert>
           <du-drop-zone></du-drop-zone>
           ${this.securityNoteHtml()}
-          <du-button-stack>${this.primaryBtn("Upload document", "upload", true)}</du-button-stack>
+          ${this.buttonStack(this.primaryBtn("Upload document", "upload", true))}
         </div>`;
       case "selected": {
         const needsNote = doc.isOther && !doc.note?.trim();
@@ -336,10 +341,10 @@ export class DuApp extends HTMLElement {
           ${this.docHeaderHtml(doc)}
           ${doc.isOther ? this.noteInputHtml(doc) : ""}
           ${this.fileRowHtml(doc, "replace,remove")}
-          <du-button-stack>
-            ${this.primaryBtn("Upload document", "upload", needsNote)}
-            ${this.tertiaryBtn("Cancel", "cancel")}
-          </du-button-stack>
+          ${this.buttonStack(
+            this.primaryBtn("Upload document", "upload", needsNote) +
+              this.tertiaryBtn("Cancel", "cancel"),
+          )}
         </div>`;
       }
       case "uploading":
@@ -347,10 +352,10 @@ export class DuApp extends HTMLElement {
           ${this.docTitleHtml(doc)}
           ${this.fileRowHtml(doc, "")}
           <du-upload-progress value="${doc.progress ?? 0}" label="Uploading ${escAttr(doc.file?.name ?? "")}"></du-upload-progress>
-          <du-button-stack>
-            <p class="stack-note">Keep this screen open while your file uploads.</p>
-            ${this.tertiaryBtn("Cancel upload", "cancel-upload")}
-          </du-button-stack>
+          ${this.buttonStack(
+            this.tertiaryBtn("Cancel upload", "cancel-upload"),
+            "Keep this screen open while your file uploads.",
+          )}
         </div>`;
       case "uploaded": {
         const next = store.nextOutstandingId(doc.id);
@@ -366,7 +371,7 @@ export class DuApp extends HTMLElement {
             ${this.fileRowHtml(doc, "preview")}
             <p class="uploaded-caption">${icon("check-circle", 16)} Uploaded · just now</p>
           </div>
-          <du-button-stack>${primary}${tertiary}</du-button-stack>
+          ${this.buttonStack(primary + tertiary)}
         </div>`;
       }
       case "failed":
@@ -375,10 +380,10 @@ export class DuApp extends HTMLElement {
           <oneapp-poc-alert type="error" heading="Upload failed" supporting="${escAttr(doc.message ?? "")}"></oneapp-poc-alert>
           ${doc.isOther ? this.noteInputHtml(doc) : ""}
           ${this.fileRowHtml(doc, "replace,remove")}
-          <du-button-stack>
-            ${this.primaryBtn("Try again", "retry")}
-            ${this.tertiaryBtn("Choose a different file", "choose-different")}
-          </du-button-stack>
+          ${this.buttonStack(
+            this.primaryBtn("Try again", "retry") +
+              this.tertiaryBtn("Choose a different file", "choose-different"),
+          )}
         </div>`;
     }
   }
