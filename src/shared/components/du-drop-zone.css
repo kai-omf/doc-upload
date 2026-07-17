@@ -19,6 +19,21 @@ du-drop-zone .zone {
 du-drop-zone .zone:hover {
   border-color: var(--omf-cx-core-color-line-emphasis, #62738c);
 }
+/* Mobile: the whole zone is a <button> — reset native button chrome, keep the card look + tap feedback. */
+du-drop-zone .zone--tap {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 180ms var(--du-ease-standard, ease),
+    background-color 180ms var(--du-ease-standard, ease);
+}
+du-drop-zone .zone--tap:active {
+  border-color: var(--omf-cx-core-color-primary, #0e45e3);
+  background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
+}
 du-drop-zone .zone.is-dragover {
   border-color: var(--omf-cx-core-color-primary, #0e45e3);
   background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);

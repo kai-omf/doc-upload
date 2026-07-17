@@ -10,6 +10,13 @@ du-file-row .row {
   border: 1px solid var(--omf-cx-core-color-line-muted, #e8eaec);
   border-radius: var(--omf-cx-shape-radius-medium-1, 12px);
 }
+/* Filled variant (Option A cards): sits on a surface fill, no border. */
+du-file-row .row[data-variant="filled"] {
+  padding: 16px;
+  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
+  border: none;
+  border-radius: var(--omf-cx-shape-radius-default, 8px);
+}
 du-file-row .icon-wrap {
   flex: none;
   display: flex;

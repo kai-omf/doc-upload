@@ -18,10 +18,19 @@ du-web-nav .bar-inner {
   margin: 0 auto;
 }
 /* Logo */
+du-web-nav .logo-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  flex: none;
+}
 du-web-nav .logo {
   display: block;
   width: auto;
   flex: none;
+}
+du-web-nav .back-row[hidden] {
+  display: none;
 }
 du-web-nav .logo-lg {
   height: 46px; /* Figma desktop web bar, nudged up to balance the global nav */
@@ -143,7 +152,7 @@ du-web-nav .back-btn {
   border-radius: var(--omf-cx-shape-radius-default, 8px);
 }
 du-web-nav .back-btn:hover {
-  background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
+  color: var(--omf-cx-core-color-primary-hover, #406def);
 }
 
 /* Breakpoint toggle at 840px */

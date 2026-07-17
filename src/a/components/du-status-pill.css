@@ -1,0 +1,47 @@
+du-status-pill {
+  display: inline-flex;
+}
+du-status-pill .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--omf-cx-gap-row-small, 8px);
+  padding: 4px 10px 4px 6px;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  white-space: nowrap;
+}
+du-status-pill .glyph {
+  display: inline-flex;
+  flex: none;
+}
+du-status-pill .glyph svg {
+  width: 16px;
+  height: 16px;
+}
+du-status-pill .label {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: 13px;
+  line-height: 16px;
+}
+
+/* Tone palettes — background + text, always paired with the glyph so status ≠ color alone. */
+du-status-pill .pill[data-tone="neutral"] {
+  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+du-status-pill .pill[data-tone="info"] {
+  background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
+  color: var(--omf-cx-core-color-body-info, #0e45e3);
+}
+du-status-pill .pill[data-tone="caution"] {
+  background: var(--omf-cx-core-color-surface-caution, #fcfaeb);
+  color: var(--omf-cx-core-color-body-caution, #856b05);
+}
+du-status-pill .pill[data-tone="positive"] {
+  background: var(--omf-cx-core-color-surface-positive, #eefbf6);
+  color: var(--omf-cx-core-color-body-positive, #008353);
+}
+du-status-pill .pill[data-tone="negative"] {
+  background: var(--omf-cx-core-color-surface-negative, #fbf3f1);
+  color: var(--omf-cx-core-color-body-negative, #d62940);
+}

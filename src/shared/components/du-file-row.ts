@@ -7,7 +7,8 @@ import "./oneapp-poc-button";
 import { icon } from "../icons";
 
 export class DuFileRow extends HTMLElement {
-  static observedAttributes = ["name", "meta", "actions"];
+  // `variant`: "bordered" (default, Option B) or "filled" (surface fill, no border — Option A cards).
+  static observedAttributes = ["name", "meta", "actions", "variant"];
   connectedCallback(): void {
     this.render();
   }
@@ -32,8 +33,9 @@ export class DuFileRow extends HTMLElement {
       })
       .join("");
 
+    const variant = this.getAttribute("variant") === "filled" ? "filled" : "bordered";
     this.innerHTML = `
-      <div class="row">
+      <div class="row" data-variant="${variant}">
         <span class="icon-wrap" aria-hidden="true">${icon("page-flip", 20)}</span>
         <div class="text">
           <p class="name">${name}</p>

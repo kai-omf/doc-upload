@@ -4,19 +4,24 @@
 // list-detail; mobile (<=839px) is a single-column drill-in. All interaction flows through event
 // delegation on this element into store actions. The banner morphs Info -> Success when complete.
 import "./du-app.css";
-import "./du-web-nav";
-import "../components/oneapp-poc-alert";
-import "../components/oneapp-poc-button";
-import "../components/oneapp-poc-note-input";
-import "../components/du-progress-header";
-import "../components/du-upload-progress";
-import "../components/du-drop-zone";
-import "../components/du-file-row";
-import "../components/du-document-item";
-import "../components/du-button-stack";
+import "@shared/chrome/du-web-nav";
+import "@shared/components/oneapp-poc-alert";
+import "@shared/components/oneapp-poc-button";
+import "@shared/components/oneapp-poc-note-input";
+import "./../components/du-progress-header";
+import "./../components/du-upload-progress";
+import "@shared/components/du-drop-zone";
+import "@shared/components/du-file-row";
+import "./../components/du-document-item";
+import "./../components/du-button-stack";
+import "@shared/components/du-file-preview";
+import type { DuFilePreview } from "@shared/components/du-file-preview";
+import "@shared/dev/du-scenario-dock";
+import type { DuScenarioDock } from "@shared/dev/du-scenario-dock";
+import { SCENARIOS_B } from "../state/scenarios-b";
 import { store, type DocState, type DocStatus } from "../state/store";
-import { isDesktop, onBreakpointChange } from "./responsive";
-import { icon } from "../icons";
+import { isDesktop, onBreakpointChange } from "@shared/chrome/responsive";
+import { icon } from "@shared/icons";
 
 const SECURITY_NOTE = "Files are encrypted in transit and shared only with your loan team.";
 
@@ -33,6 +38,8 @@ export class DuApp extends HTMLElement {
   private replaceInput!: HTMLInputElement;
   private replaceTargetId: string | null = null;
   private liveRegion!: HTMLElement; // polite SR announcements (status changes, no focus move)
+  private preview!: DuFilePreview;
+  private dock!: DuScenarioDock;
   private prevStatus = new Map<string, DocStatus>();
   private lastFocusKey = "";
 
@@ -56,14 +63,40 @@ export class DuApp extends HTMLElement {
     this.liveRegion.setAttribute("aria-live", "polite");
     this.append(this.liveRegion);
 
+    // Preview overlay lives at document.body (top layer) so it survives this element's re-renders.
+    this.preview = document.createElement("du-file-preview") as DuFilePreview;
+    document.body.appendChild(this.preview);
+
+    // Demo scenario explorer — a separate body-level overlay, never part of the flow layout.
+    this.dock = document.createElement("du-scenario-dock") as DuScenarioDock;
+    this.dock.items = SCENARIOS_B.map((s) => ({ id: s.id, label: s.label, group: s.group }));
+    this.dock.addEventListener("scenario-pick", (e) => this.applyScenario((e as CustomEvent<string>).detail));
+    document.body.appendChild(this.dock);
+
     this.attachEvents();
     this.unsub.push(store.subscribe(this.onChange));
     this.unsub.push(onBreakpointChange(this.onChange)); // breakpoint flips also re-run onChange
     this.onChange(); // initial ensure-active + render
+
+    // Deep link: /b/?scenario=<id> opens straight into that state.
+    const initial = new URLSearchParams(location.search).get("scenario");
+    if (initial && SCENARIOS_B.some((s) => s.id === initial)) this.applyScenario(initial);
   }
   disconnectedCallback(): void {
     this.unsub.forEach((u) => u());
     this.unsub = [];
+    this.preview?.remove();
+    this.dock?.remove();
+  }
+
+  private applyScenario(id: string): void {
+    const sc = SCENARIOS_B.find((s) => s.id === id);
+    if (!sc) return;
+    sc.apply();
+    this.dock.active = id;
+    const url = new URL(location.href);
+    url.searchParams.set("scenario", id);
+    history.replaceState(null, "", url);
   }
 
   // ---- Re-render policy: full render on structural change; light progress update on upload ticks.
@@ -136,17 +169,28 @@ export class DuApp extends HTMLElement {
       const action = (e as CustomEvent<string>).detail;
       if (action === "remove") store.removeFile(active);
       else if (action === "replace") this.openReplacePicker(active);
-      // "preview" is a no-op in the prototype (no real stored file).
+      else if (action === "preview") {
+        const file = store.getDoc(active)?.file;
+        if (file) this.preview.open({ url: file.url, name: file.name, type: file.typeLabel });
+      }
     });
     this.addEventListener("note-change", (e) => {
       const active = store.getState().activeDocId;
       if (!active) return;
       store.setNote(active, (e as CustomEvent<string>).detail, true); // silent — don't drop focus
       const doc = store.getDoc(active);
+      const hasNote = !!doc?.note?.trim();
       const btn = this.querySelector('[data-action="upload"]');
-      if (btn && doc) {
-        if (doc.note?.trim()) btn.removeAttribute("disabled");
-        else btn.setAttribute("disabled", "");
+      if (btn) hasNote ? btn.removeAttribute("disabled") : btn.setAttribute("disabled", "");
+      // Keep the note field's error state in sync as the user types (no re-render → focus preserved).
+      const note = this.querySelector("oneapp-poc-note-input");
+      if (note) {
+        if (hasNote) {
+          note.removeAttribute("invalid");
+        } else {
+          note.setAttribute("error", "Add a short name so your loan team knows what it is.");
+          note.setAttribute("invalid", "");
+        }
       }
     });
     this.addEventListener("nav-back", () => this.exitOrBack());
@@ -163,8 +207,10 @@ export class DuApp extends HTMLElement {
     this.replaceInput.click();
   }
   private exitOrBack(): void {
+    // On a mobile doc-step the back link returns to the overview; everywhere else "Back to home
+    // page" leaves the flow for the selector at "/" (base-path aware for GitHub Pages).
     if (!isDesktop() && store.getState().view === "doc") store.backToOverview();
-    else store.reset(); // placeholder for "return to your loan page"
+    else window.location.assign(import.meta.env.BASE_URL);
   }
   private handleAction(action: string): void {
     const active = store.getState().activeDocId;
@@ -193,7 +239,7 @@ export class DuApp extends HTMLElement {
         this.exitOrBack();
         break;
       case "exit":
-        store.reset();
+        window.location.assign(import.meta.env.BASE_URL);
         break;
     }
   }
@@ -245,7 +291,7 @@ export class DuApp extends HTMLElement {
     shell.style.display = "contents";
     shell.innerHTML = `
       <du-web-nav back-label="${escAttr(backLabel)}"></du-web-nav>
-      <main class="app-content" aria-label="Upload documents"><div class="page">${main}</div></main>
+      <main class="app-content" aria-label="Upload Documents"><div class="page">${main}</div></main>
       <footer class="footer" aria-hidden="true"></footer>`;
     this.append(shell);
 
@@ -258,7 +304,7 @@ export class DuApp extends HTMLElement {
   }
 
   private headlineHtml(): string {
-    return `<h1 class="headline headline-page">Upload documents</h1>`;
+    return `<h1 class="headline headline-page">Upload Documents</h1>`;
   }
   private bannerHtml(): string {
     const req = store.getState().request;
@@ -296,11 +342,15 @@ export class DuApp extends HTMLElement {
     return `<h2 class="doc-title headline-tile" tabindex="-1" data-step-heading>${escHtml(doc.name)}</h2>`;
   }
   private noteInputHtml(doc: DocState): string {
+    // The Other document can't be uploaded without a note, so show the field in an error state while
+    // it's empty. du-app toggles `invalid` live on note-change so it clears as soon as text is typed.
+    const invalid = !doc.note?.trim();
     return `<oneapp-poc-note-input
         label="What is this document?"
         placeholder="e.g. Employment verification letter"
         helper="Add a short name so your loan team knows what it is."
-        value="${escAttr(doc.note ?? "")}"></oneapp-poc-note-input>`;
+        value="${escAttr(doc.note ?? "")}"
+        ${invalid ? 'invalid error="Add a short name so your loan team knows what it is."' : ""}></oneapp-poc-note-input>`;
   }
   private fileRowHtml(doc: DocState, actions: string): string {
     const meta = doc.file ? `${doc.file.sizeLabel} · ${doc.file.typeLabel}` : "";

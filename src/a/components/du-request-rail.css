@@ -1,0 +1,68 @@
+du-request-rail {
+  display: block;
+}
+du-request-rail .rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-tile-large, 24px);
+  padding: var(--omf-cx-padding-surface-base, 24px);
+  background: var(--omf-cx-core-color-surface-base, #ffffff);
+  border: 1px solid var(--omf-cx-core-color-line-muted, #e8eaec);
+  border-radius: var(--omf-cx-shape-radius-large-1, 16px);
+}
+
+/* Per-document checklist mirror */
+du-request-rail .checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-row-default, 16px);
+}
+du-request-rail .row {
+  display: flex;
+  align-items: center;
+  gap: var(--omf-cx-gap-row-small, 8px);
+}
+du-request-rail .row-icon {
+  flex: none;
+  display: inline-flex;
+}
+du-request-rail .row-name {
+  flex: 1 0 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-supporting-size, 15px);
+  line-height: var(--omf-cx-font-body-supporting-line-height, 20px);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+du-request-rail .row-status {
+  flex: none;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+}
+du-request-rail .divider {
+  height: 1px;
+  background: var(--omf-cx-core-color-line-muted, #e8eaec);
+}
+du-request-rail .helper,
+du-request-rail .block-reason {
+  margin: 0;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+/* Pull the note tight under the CTA. */
+du-request-rail .block-reason {
+  margin-top: calc(-1 * var(--omf-cx-gap-tile-large, 24px) + 8px);
+  text-align: center;
+}
+/* The divider/helper/CTA share the rail's 24px rhythm, so no extra spacing needed. */

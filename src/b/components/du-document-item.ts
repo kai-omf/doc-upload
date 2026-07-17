@@ -4,7 +4,7 @@
 // Renders as a real <button> so it is keyboard-operable. Emits "open-doc".
 // (Figma: Doc Upload / B / Document Item, node 137:1179.)
 import "./du-document-item.css";
-import { icon, type IconName } from "../icons";
+import { icon, type IconName } from "@shared/icons";
 
 const STATUS_GLYPH: Record<string, IconName> = {
   "not-started": "page-flip",

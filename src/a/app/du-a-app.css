@@ -1,0 +1,95 @@
+du-a-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+du-a-app .a-content {
+  flex: 1 0 auto;
+}
+
+/* Page container — aligns with the web-nav inner width. */
+du-a-app .a-page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+@media (min-width: 840px) {
+  du-a-app .a-page {
+    padding: 32px 32px 48px;
+  }
+}
+
+du-a-app .a-headline {
+  margin: 0 0 20px;
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+du-a-app .banner-wrap {
+  margin-bottom: 24px;
+}
+
+/* Mobile compact session progress sits above the card stack. */
+du-a-app > * du-session-progress[compact] {
+  display: block;
+  margin-bottom: 20px;
+}
+
+/* Desktop two-column: card stack + sticky request rail. Single column on mobile. */
+du-a-app .a-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+@media (min-width: 840px) {
+  du-a-app .a-grid {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 32px;
+    align-items: start;
+  }
+  du-a-app .rail-col {
+    position: sticky;
+    top: 24px;
+  }
+}
+
+du-a-app .card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Footer */
+du-a-app .a-footer {
+  flex: none;
+  height: 64px;
+  background: var(--omf-cx-core-color-body-selected, #002169);
+}
+
+/* Screen-reader-only live region */
+du-a-app .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+/* Programmatic focus target (success heading) — not interactive, so no visible ring. */
+du-a-app oneapp-poc-alert[type="success"] .heading:focus {
+  outline: none;
+}
+/* Hidden replace-picker input */
+du-a-app input.replace-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+}

@@ -1,0 +1,174 @@
+/* Demo tool — deliberately reads as a utility, not part of the product. Fixed bottom-left, above the
+   page but below the preview dialog (top layer). Raised on mobile so it clears a sticky submit bar. */
+du-scenario-dock .dock {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 60;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+}
+@media (max-width: 839px) {
+  du-scenario-dock .dock {
+    bottom: 88px; /* clear the mobile sticky submit bar */
+  }
+}
+/* Fully hidden — nothing on screen (restore via Shift+. or long-press the bottom-left corner). */
+du-scenario-dock .dock[data-hidden="true"] {
+  display: none;
+}
+
+/* Collapsed launcher pill */
+du-scenario-dock .dock-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px 10px 12px;
+  border: none;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: var(--omf-cx-core-color-surface-inverse-base, #002169);
+  color: #ffffff;
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(5, 25, 88, 0.24);
+  opacity: 0.85;
+  transition:
+    opacity var(--du-dur-fast, 120ms) var(--du-ease-standard, ease),
+    transform var(--du-dur-fast, 120ms) var(--du-ease-standard, ease);
+}
+du-scenario-dock .dock-toggle:hover {
+  opacity: 1;
+}
+du-scenario-dock .dock-toggle:active {
+  transform: scale(0.97);
+}
+du-scenario-dock .dock[data-open="true"] .dock-toggle {
+  display: none;
+}
+
+/* Expanded panel */
+du-scenario-dock .dock-panel {
+  display: none;
+  width: 264px;
+  max-height: min(70vh, 560px);
+  overflow: auto;
+  background: var(--omf-cx-core-color-surface-base, #ffffff);
+  border: 1px solid var(--omf-cx-core-color-line-muted, #e8eaec);
+  border-radius: var(--omf-cx-shape-radius-medium-1, 12px);
+  box-shadow: 0 16px 40px rgba(5, 25, 88, 0.22);
+  animation: du-enter-up var(--du-dur-base, 220ms) var(--du-ease-out, ease) both;
+}
+du-scenario-dock .dock[data-open="true"] .dock-panel {
+  display: block;
+}
+du-scenario-dock .dock-head {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px 12px 16px;
+  background: var(--omf-cx-core-color-surface-base, #ffffff);
+  border-bottom: 1px solid var(--omf-cx-core-color-line-muted, #e8eaec);
+}
+du-scenario-dock .dock-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: var(--omf-cx-font-weight-bold, 700);
+  font-size: 14px;
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+du-scenario-dock .dock-title svg {
+  color: var(--omf-cx-core-color-body-info, #0e45e3);
+}
+du-scenario-dock .dock-head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+du-scenario-dock .dock-hide,
+du-scenario-dock .dock-x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: transparent;
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+  cursor: pointer;
+  transition: background-color var(--du-dur-fast, 120ms) var(--du-ease-standard, ease);
+}
+du-scenario-dock .dock-hide:hover,
+du-scenario-dock .dock-x:hover {
+  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+du-scenario-dock .dock-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px; /* keep each rounded fill a distinct pill so adjacent active/hover fills never pinch */
+}
+du-scenario-dock .dock-group {
+  padding: 10px 8px 4px;
+  font-size: 11px;
+  font-weight: var(--omf-cx-font-weight-bold, 700);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+du-scenario-dock .dock-list button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  border: none;
+  border-radius: var(--omf-cx-shape-radius-default, 8px);
+  background: transparent;
+  color: var(--omf-cx-core-color-body-default, #4b576c);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+  transition:
+    background-color var(--du-dur-fast, 120ms) var(--du-ease-standard, ease),
+    color var(--du-dur-fast, 120ms) var(--du-ease-standard, ease);
+}
+du-scenario-dock .dock-list button:hover {
+  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+/* Clean, inset keyboard-focus ring (no heavy UA outline sitting outside the pill). */
+du-scenario-dock .dock-list button:focus {
+  outline: none;
+}
+du-scenario-dock .dock-list button:focus-visible {
+  outline: 2px solid var(--omf-cx-core-color-line-secondary, #406def);
+  outline-offset: -2px;
+}
+du-scenario-dock .dock-list button[data-active] {
+  background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
+  color: var(--omf-cx-core-color-body-info, #0e45e3);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+}
+du-scenario-dock .dock-hint {
+  margin: 0;
+  padding: 4px 16px 14px;
+  font-size: 12px;
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+du-scenario-dock kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--omf-cx-core-color-line-moderate, #cbd5e1);
+  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
+}

@@ -1,0 +1,49 @@
+du-session-progress {
+  display: block;
+}
+du-session-progress .wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-row-small, 8px);
+}
+du-session-progress .labels {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--omf-cx-gap-row-default, 16px);
+}
+du-session-progress .title {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-label-small-1-size, 15px);
+  line-height: var(--omf-cx-font-label-small-1-line-height, 24px);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+du-session-progress .count {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+du-session-progress .track {
+  position: relative;
+  height: 6px;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
+  overflow: hidden;
+}
+du-session-progress .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--omf-cx-core-color-body-positive, #008353);
+  /* width animates during the submit cascade (motion.css governs duration/easing) */
+  transition: width var(--du-dur-slow, 380ms) var(--du-ease-standard, ease);
+}
+/* Compact (mobile top): tighter labels. */
+du-session-progress[compact] .title {
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: 20px;
+}

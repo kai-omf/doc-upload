@@ -11,14 +11,19 @@ export type IconName =
   | "chevron-right"
   | "check"
   | "check-circle"
+  | "check-dashed-circle"
+  | "dashed-circle"
   | "warning-circle"
   | "warning-triangle"
   | "lock"
   | "info-circle"
   | "menu"
+  | "close"
   | "arrow-left"
   | "help"
-  | "user";
+  | "user"
+  | "beaker"
+  | "eye-off";
 
 const P: Record<IconName, string> = {
   upload:
@@ -37,6 +42,10 @@ const P: Record<IconName, string> = {
     '<path d="M5 13L9 17L19 7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
   "check-circle":
     '<path d="M7 12.5L10 15.5L17 8.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
+  "dashed-circle":
+    '<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-dasharray="2.6 3.4"/>',
+  "check-dashed-circle":
+    '<path d="M8 12.5L10.75 15.25L16 9.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-linecap="round" stroke-dasharray="2.6 3.4"/>',
   "warning-circle":
     '<path d="M12 7L12 13" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 17.01L12.01 16.9989" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
   "warning-triangle":
@@ -47,12 +56,18 @@ const P: Record<IconName, string> = {
     '<path d="M12 11.5V16.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 7.51L12.01 7.49889" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
   menu:
     '<path d="M3 5H21M3 12H21M3 19H21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
+  close:
+    '<path d="M6.75827 17.2426L12.0009 12M17.2435 6.75736L12.0009 12M12.0009 12L6.75827 6.75736M12.0009 12L17.2435 17.2426" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
   "arrow-left":
     '<path d="M19 12H5M5 12L11 6M5 12L11 18" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
   help:
     '<path d="M9.5 9C9.5 7.61929 10.6193 6.5 12 6.5C13.3807 6.5 14.5 7.61929 14.5 9C14.5 10.1531 13.7191 10.9236 12.9163 11.4057C12.3005 11.7755 12 12.2954 12 13V13.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 17.01L12.01 16.9989" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
   user:
     '<path d="M5 20V19C5 15.6863 7.68629 13 11 13H13C16.3137 13 19 15.6863 19 19V20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 10C14.2091 10 16 8.20914 16 6C16 3.79086 14.2091 2 12 2C9.79086 2 8 3.79086 8 6C8 8.20914 9.79086 10 12 10Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
+  beaker:
+    '<path d="M9 3H15M10 3V9.2929C10 9.7383 9.8127 10.1642 9.4855 10.4657L4.5145 15.0343C3.5121 15.9583 4.1655 17.6 5.529 17.6H18.471C19.8345 17.6 20.4879 15.9583 19.4855 15.0343L14.5145 10.4657C14.1873 10.1642 14 9.7383 14 9.2929V3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 14H17" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
+  "eye-off":
+    '<path d="M19.5 16C20.7 14.82 21.6 13.42 22 12C21 9.4 17.5 5 12 5C11 5 10.09 5.1 9.26 5.29M6.1 6.55C3.8 8.06 2.5 10.13 2 12C3 14.6 6.5 19 12 19C13.83 19 15.42 18.51 16.74 17.74" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.9 9.9A3 3 0 0014.1 14.1" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 3L21 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
 };
 
 /** Returns an inline `<svg>` string for the named icon. Decorative by default (aria-hidden). */

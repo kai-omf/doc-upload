@@ -15,6 +15,7 @@ export interface FileInfo {
   name: string;
   sizeLabel: string; // e.g. "1.2 MB"
   typeLabel: string; // e.g. "PDF"
+  url: string; // object URL for previewing the actual file the user picked
 }
 
 export interface DocState {
@@ -185,8 +186,13 @@ class Store {
     Object.assign(doc, next);
   }
 
+  private revokeUrl(doc: DocState | undefined): void {
+    if (doc?.file?.url) URL.revokeObjectURL(doc.file.url);
+  }
+
   /** Validate + associate a chosen file. → 'selected' or 'validation-error'. */
   selectFile(id: string, file: File): void {
+    this.revokeUrl(this.getDoc(id)); // free any previously-selected file's object URL
     const ext = extensionOf(file.name);
     const sizeMb = file.size / (1024 * 1024);
     if (!(UPLOAD_CONFIG.allowedExtensions as readonly string[]).includes(ext)) {
@@ -205,7 +211,12 @@ class Store {
       this.patch(id, {
         status: "selected",
         message: undefined,
-        file: { name: file.name, sizeLabel: formatSize(file.size), typeLabel: typeLabelOf(file.name) },
+        file: {
+          name: file.name,
+          sizeLabel: formatSize(file.size),
+          typeLabel: typeLabelOf(file.name),
+          url: URL.createObjectURL(file),
+        },
       });
     }
     this.emit();
@@ -259,6 +270,7 @@ class Store {
   removeFile(id: string): void {
     this.clearTimer(id);
     const doc = this.getDoc(id);
+    this.revokeUrl(doc);
     this.patch(id, {
       status: "not-started",
       file: undefined,
@@ -286,7 +298,22 @@ class Store {
   /** Prototype convenience: reset the whole flow. */
   reset(): void {
     for (const id of this.timers.keys()) this.clearTimer(id);
+    for (const doc of this.docs) this.revokeUrl(doc);
     this.state = { request: seedRequest(), activeDocId: null, view: "overview" };
+    this.emit();
+  }
+
+  /** Demo-only (scenario explorer): jump straight to a named set of document states; `focus`
+   *  selects the doc shown in the desktop panel / mobile drill-in. */
+  loadScenario(overrides: Record<string, Partial<DocState>>, focus?: string): void {
+    for (const id of this.timers.keys()) this.clearTimer(id);
+    for (const doc of this.docs) this.revokeUrl(doc);
+    this.state = {
+      request: seedRequest(),
+      activeDocId: focus ?? null,
+      view: focus ? "doc" : "overview",
+    };
+    for (const [id, patch] of Object.entries(overrides)) this.patch(id, patch);
     this.emit();
   }
 }

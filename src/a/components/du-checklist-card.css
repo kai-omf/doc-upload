@@ -1,0 +1,100 @@
+du-checklist-card {
+  display: block;
+}
+du-checklist-card .card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-tile-large, 24px);
+  padding: var(--omf-cx-padding-surface-base, 24px);
+  background: var(--omf-cx-core-color-surface-base, #ffffff);
+  border: 1px solid var(--omf-cx-core-color-line-muted, #e8eaec);
+  border-radius: var(--omf-cx-shape-radius-large-1, 16px);
+}
+
+/* Header — title + status pill, then description */
+du-checklist-card .header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-group-small, 4px);
+}
+du-checklist-card .title-row {
+  display: flex;
+  gap: var(--omf-cx-gap-row-default, 16px);
+  align-items: center;
+}
+du-checklist-card .title {
+  flex: 1 0 0;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-body-default-size, 17px);
+  line-height: var(--omf-cx-font-body-default-line-height, 24px);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+  word-break: break-word;
+}
+du-checklist-card du-status-pill {
+  flex: none;
+}
+du-checklist-card .desc {
+  margin: 0;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-supporting-size, 15px);
+  line-height: var(--omf-cx-font-body-supporting-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+
+/* Body — stacked primitives per status. Scoped to the card's own direct child so it never leaks
+   into a descendant's `.body` (e.g. oneapp-poc-alert's, which has its own tighter gap). */
+du-checklist-card .card > .body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-row-default, 16px);
+}
+
+/* Submitting: determinate fill under the file row */
+du-checklist-card .submit-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-row-small, 8px);
+}
+du-checklist-card .submit-progress .track {
+  position: relative;
+  height: 6px;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
+  overflow: hidden;
+}
+du-checklist-card .submit-progress .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--omf-cx-core-color-body-info, #0e45e3);
+  transition: width var(--du-dur-base, 220ms) linear;
+}
+du-checklist-card .submit-progress .pct {
+  margin: 0;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+
+/* Failed: recovery actions */
+du-checklist-card .failed-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--omf-cx-gap-row-small, 8px);
+  align-items: center;
+}
+
+/* Mobile: stack the status pill above the title (per the mobile card variant). */
+@media (max-width: 839px) {
+  du-checklist-card .title-row {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: var(--omf-cx-gap-row-small, 8px);
+  }
+}
