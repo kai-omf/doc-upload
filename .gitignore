@@ -15,3 +15,6 @@ coverage/
 # Logs and caches
 *.log
 .cache/
+
+# Local mirror helper (not for the repo)
+/sync-work.sh
