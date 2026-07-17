@@ -1,4 +1,4 @@
-// du-a-app — the Direction A (Checklist Hub) shell + orchestrator. Subscribes to store-a and renders
+// du-a-app — the Direction A (Single Page) shell + orchestrator. Subscribes to store-a and renders
 // the whole page: OneApp web chrome, the Info↔Success banner, the checklist card stack, and — per
 // breakpoint — the desktop sticky request rail or the mobile compact progress + sticky submit bar.
 // All interaction flows through event delegation into batch-store actions. Progress ticks during the
@@ -318,6 +318,14 @@ export class DuAApp extends HTMLElement {
     if (storeA.allSubmitted) {
       return `<oneapp-poc-alert type="success" heading="You're all set" supporting="We've submitted your ${req.docCount} documents to your loan team for review. There's nothing else you need to do right now."></oneapp-poc-alert>`;
     }
+    // After a submit attempt, surface a summary of what didn't go through so the customer isn't left
+    // with only a disabled button. Nothing was lost — the per-card "Try again" is the recovery.
+    const failed = storeA.failedCount;
+    if (failed > 0) {
+      const noun = failed === 1 ? "document" : "documents";
+      const poss = failed === 1 ? "Your file is" : "Your files are";
+      return `<oneapp-poc-alert type="error" heading="We couldn't submit ${failed} ${noun}" supporting="${poss} still here — review the highlighted ${noun} below and try again."></oneapp-poc-alert>`;
+    }
     return `<oneapp-poc-alert type="info" heading="Documents for your personal loan" supporting="Your loan team needs these by ${escAttr(req.dueDateLabel)} to keep your request on track. Add each one, then submit them together."></oneapp-poc-alert>`;
   }
 
@@ -351,6 +359,10 @@ export class DuAApp extends HTMLElement {
       storeA.docs.length > 0 &&
       storeA.docs.every((d) => this.renderedStatus.get(d.id) === "submitted");
     const justCompleted = storeA.allSubmitted && !wasAllSubmitted;
+    // The submit cascade just settled with at least one failure — orient the customer at the
+    // top-of-page error summary rather than leaving them scrolled mid-list with a disabled button.
+    const wasSubmitting = storeA.docs.some((d) => this.renderedStatus.get(d.id) === "submitting");
+    const justFailed = wasSubmitting && !storeA.isSubmitting && storeA.failedCount > 0;
 
     this.innerHTML = "";
     this.append(this.replaceInput, this.liveRegion);
@@ -378,6 +390,16 @@ export class DuAApp extends HTMLElement {
         heading.setAttribute("tabindex", "-1");
         heading.focus();
       }
+    }
+    // On a failed submit, bring the error summary into view and focus it (the alert is also
+    // announced via role="alert"). Focus without scrolling, then smooth-scroll to the top.
+    if (justFailed) {
+      const heading = this.querySelector<HTMLElement>('oneapp-poc-alert[type="error"] .heading');
+      if (heading) {
+        heading.setAttribute("tabindex", "-1");
+        heading.focus({ preventScroll: true });
+      }
+      window.scrollTo({ top: 0, behavior: this.reduceMotion ? "auto" : "smooth" });
     }
   }
 }

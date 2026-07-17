@@ -11,6 +11,12 @@ du-checklist-card .card {
   border-radius: var(--omf-cx-shape-radius-large-1, 16px);
 }
 
+/* Failed cards are outlined so the error banner's "review the highlighted document" is literal. */
+du-checklist-card .card[data-status="failed"] {
+  border-color: var(--omf-cx-core-color-line-negative, #ffc8c2);
+  box-shadow: 0 0 0 1px var(--omf-cx-core-color-line-negative, #ffc8c2);
+}
+
 /* Header — title + status pill, then description */
 du-checklist-card .header {
   display: flex;

@@ -44,7 +44,7 @@ du-a-app du-checklist-card oneapp-poc-alert {
       box-shadow var(--du-dur-base) var(--du-ease-standard),
       border-color var(--du-dur-base) var(--du-ease-standard);
   }
-  du-a-app du-checklist-card .card:hover {
+  du-a-app du-checklist-card .card:not([data-status="failed"]):hover {
     border-color: var(--omf-cx-core-color-line-moderate, #cbd5e1);
     box-shadow: 0 4px 14px rgba(5, 25, 88, 0.05);
   }

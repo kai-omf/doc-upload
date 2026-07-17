@@ -1,4 +1,4 @@
-# Option A — "Checklist Hub" Implementation Plan
+# Option A — "Single Page" Implementation Plan
 
 Plan to build **Option A** in code, alongside Option B, sharing a common foundation. Motion is a
 first-class concern throughout; the target is a smooth, choreographed experience with **no jarring
@@ -19,7 +19,7 @@ rendering, `--omf-cx-*` tokens, self-hosted Merchant fonts, pub/sub store, Playw
 Three pages via **Vite multi-page** (clean URLs, works under the Pages base path):
 
 - **`/`** — home **flow selector** (the "Home" nav item points here)
-- **`/a/`** — Option A (Checklist Hub)
+- **`/a/`** — Option A (Single Page)
 - **`/b/`** — Option B (Guided Flow, existing)
 
 ```
@@ -51,7 +51,7 @@ src/
 ```
 
 **The home selector (`du-home`):** full OneMain web chrome with **Home active**, a short intro, and
-**two option cards** — "Checklist Hub (Option A)" → `/a/` and "Guided Flow (Option B)" → `/b/` —
+**two option cards** — "Single Page (Option A)" → `/a/` and "Guided Flow (Option B)" → `/b/` —
 each with a one-line description. It's the prototype's hub; lightweight, not a real product page.
 
 **Cross-page links must respect the base path.** Build every inter-page link from
@@ -221,7 +221,7 @@ frame-by-frame (screenshots at intervals during `submitAll`) to confirm the chor
 and **staggered**, not a hard flip.
 
 ## Figma source of truth
-Section **"Option A — Checklist Hub"** in file `PS96rH7QrUVTZinM1uTZbk`: desktop **A1** (default),
+Section **"Option A — Single Page"** in file `PS96rH7QrUVTZinM1uTZbk`: desktop **A1** (default),
 **A2** (mixed/edge coverage), **A3** (all staged/ready), **A4** (all submitted/success); mobile
 **A-M1** (default), **A-M2** (staged), **A-M3** (submitted). Build each component against its node
 and screenshot-diff before moving on.

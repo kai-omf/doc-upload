@@ -1,4 +1,4 @@
-// du-status-pill — the per-document status chip for the Checklist Hub. Always icon + text (never
+// du-status-pill — the per-document status chip for the Single Page. Always icon + text (never
 // color alone). Colors follow the Pencil status palette: neutral (not started), blue (ready /
 // submitting), amber (needs attention), green (submitted), red (failed).
 // (Figma: Doc Upload / Document Status, node 110:1125.)

@@ -18,7 +18,7 @@ export class DuHome extends HTMLElement {
           <div class="home-cards">
             <a class="flow-card" href="${BASE}a/">
               <span class="flow-eyebrow">Direction A</span>
-              <span class="flow-name">Checklist Hub</span>
+              <span class="flow-name">Single Page</span>
               <span class="flow-desc">See every document at once, stage files with instant validation, then submit them all together.</span>
               <span class="flow-go">Open ${icon("chevron-right", 18)}</span>
             </a>

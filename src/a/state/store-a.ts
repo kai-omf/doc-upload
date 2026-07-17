@@ -1,4 +1,4 @@
-// Single source of truth for the Option A "Checklist Hub" prototype.
+// Single source of truth for the Option A "Single Page" prototype.
 // A framework-free pub/sub store holding the request + a per-document *batch* state machine.
 //
 // One-milestone model: you STAGE each file (validated on the spot, still editable), then a single
@@ -161,6 +161,9 @@ class StoreA {
   }
   get submittedCount(): number {
     return this.docs.filter((d) => d.status === "submitted").length;
+  }
+  get failedCount(): number {
+    return this.docs.filter((d) => d.status === "failed").length;
   }
   get allReady(): boolean {
     return this.docs.every((d) => d.status === "ready");

@@ -1,4 +1,4 @@
-// Demo scenarios for Option A (Checklist Hub) — each jumps the store straight to an edge case /
+// Demo scenarios for Option A (Single Page) — each jumps the store straight to an edge case /
 // state so reviewers can explore without walking the whole flow. Consumed by the scenario dock.
 import { storeA, type DocState } from "./store-a";
 import { sampleFile } from "../../shared/dev/sample-doc";

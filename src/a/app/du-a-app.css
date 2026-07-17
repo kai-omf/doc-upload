@@ -78,8 +78,9 @@ du-a-app .sr-only {
   white-space: nowrap;
   border: 0;
 }
-/* Programmatic focus target (success heading) — not interactive, so no visible ring. */
-du-a-app oneapp-poc-alert[type="success"] .heading:focus {
+/* Programmatic focus targets (success / error banner headings) — not interactive, so no ring. */
+du-a-app oneapp-poc-alert[type="success"] .heading:focus,
+du-a-app oneapp-poc-alert[type="error"] .heading:focus {
   outline: none;
 }
 /* Hidden replace-picker input */
