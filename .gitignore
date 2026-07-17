@@ -16,5 +16,6 @@ coverage/
 *.log
 .cache/
 
-# Local mirror helper (not for the repo)
+# Local mirror workflow (not for the repo)
 /sync-work.sh
+/MIRROR-WORKFLOW.md
