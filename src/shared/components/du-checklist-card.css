@@ -88,6 +88,11 @@ du-checklist-card .submit-progress .pct {
   color: var(--omf-cx-core-color-body-moderate, #62738c);
 }
 
+/* Instant mode: the per-card Upload button hugs its content and left-aligns (not full-width). */
+du-checklist-card .upload-btn {
+  align-self: flex-start;
+}
+
 /* Failed: recovery actions */
 du-checklist-card .failed-actions {
   display: flex;
@@ -102,5 +107,51 @@ du-checklist-card .failed-actions {
     flex-direction: column-reverse;
     align-items: flex-start;
     gap: var(--omf-cx-gap-row-small, 8px);
+  }
+}
+
+/* ============================================================================
+   Card motion (shared by A "Single Page" + C "Instant Upload"). App-agnostic so both flows get the
+   body cross-fade, confirmation pop, alert slide-in, and hover lift. The FLIP reflow itself is
+   driven from each app's JS; these rules are what its inline transforms animate against.
+   ============================================================================ */
+:root {
+  --du-dur-stage: 260ms; /* card body swap */
+}
+du-checklist-card {
+  will-change: transform;
+}
+/* The changed card's body cross-fades + rises slightly as it swaps (also the on-load entrance). */
+du-checklist-card[data-anim] .card > .body {
+  animation: du-enter-up var(--du-dur-stage) var(--du-ease-out) both;
+}
+/* Confirmation: a just-completed green check pops in. Scoped to the changed card so already-green
+   siblings don't re-pop. */
+du-checklist-card[data-anim] du-status-pill .pill[data-tone="positive"] .glyph svg {
+  animation: du-pop var(--du-dur-slow) var(--du-ease-spring) both;
+  transform-origin: center;
+}
+/* Inline validation / failure alerts slide in to draw the eye. */
+du-checklist-card oneapp-poc-alert {
+  animation: du-alert-in var(--du-dur-base) var(--du-ease-out) both;
+}
+/* Desktop card hover lift (never on touch / mobile). */
+@media (min-width: 840px) and (hover: hover) {
+  du-checklist-card .card {
+    transition:
+      box-shadow var(--du-dur-base) var(--du-ease-standard),
+      border-color var(--du-dur-base) var(--du-ease-standard);
+  }
+  du-checklist-card .card:not([data-status="failed"]):hover {
+    border-color: var(--omf-cx-core-color-line-moderate, #cbd5e1);
+    box-shadow: 0 4px 14px rgba(5, 25, 88, 0.05);
+  }
+}
+/* Reduced motion: drop the FLIP slide entirely (each app also skips setting transforms). */
+@media (prefers-reduced-motion: reduce) {
+  du-checklist-card {
+    transition: none !important;
+    transform: none !important;
+    will-change: auto;
   }
 }

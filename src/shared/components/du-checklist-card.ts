@@ -15,9 +15,11 @@ import "@shared/components/du-file-row";
 import "@shared/components/oneapp-poc-note-input";
 import "@shared/components/oneapp-poc-alert";
 import "@shared/components/oneapp-poc-button";
-import type { DocStatus } from "../state/store-a";
+import type { DocStatus } from "./status-meta";
 
 export class DuChecklistCard extends HTMLElement {
+  // `mode`: "batch" (A — stage then one Submit) or "instant" (C — a per-card Upload button that
+  // uploads this document on its own). Defaults to batch.
   static observedAttributes = [
     "doc-id",
     "name",
@@ -31,6 +33,7 @@ export class DuChecklistCard extends HTMLElement {
     "progress",
     "accept",
     "hint",
+    "mode",
   ];
   connectedCallback(): void {
     this.render();
@@ -54,6 +57,8 @@ export class DuChecklistCard extends HTMLElement {
     const hint = this.getAttribute("hint") ?? "PDF, JPG, or PNG · up to 10 MB";
     const isOther = this.hasAttribute("is-other");
 
+    const instant = this.getAttribute("mode") === "instant";
+
     const dropZone = `<du-drop-zone accept="${accept}" hint="${hint}"></du-drop-zone>`;
     const fileRow = (actions: string) =>
       `<du-file-row variant="filled" name="${fileName}" meta="${fileMeta}" actions="${actions}"></du-file-row>`;
@@ -66,6 +71,18 @@ export class DuChecklistCard extends HTMLElement {
         ${invalid ? 'invalid error="Add a short note so we can route this document."' : ""}>
       </oneapp-poc-note-input>`;
     const errorAlert = `<oneapp-poc-alert type="error" heading="We couldn't add that file" supporting="${message}"></oneapp-poc-alert>`;
+    // Instant mode only: the per-card Upload button (disabled while a required note is missing).
+    const uploadBtn = (disabled: boolean) =>
+      instant
+        ? `<oneapp-poc-button class="upload-btn" hierarchy="primary" size="default" label="Upload document" data-action="upload"${disabled ? " disabled" : ""}></oneapp-poc-button>`
+        : "";
+    const progressMarkup = (verb: string) =>
+      `<div class="submit-progress">
+         <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}" aria-label="${verb} ${fileName}">
+           <div class="fill" style="width:${progress}%"></div>
+         </div>
+         <p class="pct">${verb}… ${progress}%</p>
+       </div>`;
 
     switch (status) {
       case "not-started":
@@ -73,23 +90,21 @@ export class DuChecklistCard extends HTMLElement {
       case "validation-error":
         return (isOther ? noteField(false) : "") + errorAlert + dropZone;
       case "note-required":
-        // The note field shows an error until a type is entered. du-a-app toggles the field's
-        // `invalid` attribute live as the user types (note-required ↔ ready), so the body is never
-        // re-rendered mid-edit (which would drop input focus).
-        return noteField(true) + fileRow("replace,remove");
-      case "ready":
+        // The note field shows an error until a type is entered. du-a/c-app toggles the field's
+        // `invalid` attribute live as the user types (note-required ↔ ready/selected), so the body is
+        // never re-rendered mid-edit (which would drop input focus). Instant mode also shows a
+        // disabled Upload button here so the gate is obvious.
+        return noteField(true) + fileRow("replace,remove") + uploadBtn(true);
+      case "ready": // A batch: staged, waiting for the single Submit
         return (isOther ? noteField(false) : "") + fileRow("replace,remove");
+      case "selected": // C instant: staged, waiting for this doc's Upload
+        return (isOther ? noteField(false) : "") + fileRow("replace,remove") + uploadBtn(false);
       case "submitting":
-        return (
-          fileRow("") +
-          `<div class="submit-progress">
-             <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}" aria-label="Submitting ${fileName}">
-               <div class="fill" style="width:${progress}%"></div>
-             </div>
-             <p class="pct">Submitting… ${progress}%</p>
-           </div>`
-        );
+        return fileRow("") + progressMarkup("Submitting");
+      case "uploading":
+        return fileRow("") + progressMarkup("Uploading");
       case "submitted":
+      case "uploaded":
         return fileRow("preview");
       case "failed":
         return (

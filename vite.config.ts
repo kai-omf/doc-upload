@@ -8,7 +8,8 @@ import { fileURLToPath, URL } from "node:url";
 // subpath, so the Pages workflow sets BASE_PATH=/doc-upload/ to prefix built asset URLs.
 const shared = fileURLToPath(new URL("./src/shared", import.meta.url));
 
-// Multi-page: "/" home selector, "/a/" Option A, "/b/" Option B. Shared primitives via @shared/*.
+// Multi-page: "/" home selector, "/a/" Option A, "/b/" Option B, "/loans/document-center/" the
+// Document Center entry point. Shared primitives via @shared/*.
 export default defineConfig({
   base: process.env.BASE_PATH || "/",
   resolve: { alias: { "@shared": shared } },
@@ -21,6 +22,8 @@ export default defineConfig({
         home: fileURLToPath(new URL("./index.html", import.meta.url)),
         a: fileURLToPath(new URL("./a/index.html", import.meta.url)),
         b: fileURLToPath(new URL("./b/index.html", import.meta.url)),
+        c: fileURLToPath(new URL("./c/index.html", import.meta.url)),
+        docCenter: fileURLToPath(new URL("./loans/document-center/index.html", import.meta.url)),
       },
     },
   },

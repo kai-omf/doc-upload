@@ -7,8 +7,7 @@ import "./du-request-rail.css";
 import "./du-session-progress";
 import "@shared/components/oneapp-poc-button";
 import { icon } from "@shared/icons";
-import type { DocStatus } from "../state/store-a";
-import { STATUS_META, TONE_COLOR } from "./status-meta";
+import { STATUS_META, TONE_COLOR, type DocStatus } from "./status-meta";
 
 export interface RailDoc {
   name: string;
@@ -22,6 +21,10 @@ export interface RailData {
   canSubmit: boolean;
   submitting: boolean;
   blockReason: string | null;
+  // "batch" (A) shows the Submit CTA + helper; "instant" (C) uploads per-doc, so no Submit CTA —
+  // only the "Back to home page" exit once everything is done. Defaults to batch when omitted.
+  mode?: "batch" | "instant";
+  verb?: string; // session-progress noun: "submitted" (A) | "uploaded" (C)
 }
 
 export class DuRequestRail extends HTMLElement {
@@ -54,27 +57,39 @@ export class DuRequestRail extends HTMLElement {
       })
       .join("");
 
+    const instant = d.mode === "instant";
+    const verb = d.verb ?? "submitted";
+
+    // Instant flows have no batch Submit — the only rail CTA is the exit once everything's done.
+    // Batch flows always show the Submit → Back-to-home CTA.
+    const showCta = instant ? d.allSubmitted : true;
     const ctaLabel = d.allSubmitted ? "Back to home page" : "Submit documents";
     const ctaAction = d.allSubmitted ? "exit" : "submit";
     const disabled = !d.allSubmitted && !d.canSubmit;
     const helper = d.allSubmitted
       ? ""
-      : `<p class="helper">You can add, replace, or remove files until you submit.</p>`;
+      : instant
+        ? `<p class="helper">Each document uploads on its own as you add it.</p>`
+        : `<p class="helper">You can add, replace, or remove files until you submit.</p>`;
     const blockNote =
-      !d.allSubmitted && d.blockReason
+      !instant && !d.allSubmitted && d.blockReason
         ? `<p class="block-reason" role="status">${d.blockReason}</p>`
         : "";
 
     this.innerHTML = `
       <aside class="rail" aria-label="Request summary">
-        <du-session-progress submitted="${d.submittedCount}" total="${d.total}"></du-session-progress>
+        <du-session-progress submitted="${d.submittedCount}" total="${d.total}" verb="${verb}"></du-session-progress>
         <ul class="checklist">${rows}</ul>
         <div class="divider" role="presentation"></div>
         ${helper}
-        <oneapp-poc-button
-          hierarchy="primary" size="default" full
-          label="${ctaLabel}" data-action="${ctaAction}"
-          ${disabled ? "disabled" : ""} ${d.submitting ? "busy" : ""}></oneapp-poc-button>
+        ${
+          showCta
+            ? `<oneapp-poc-button
+                 hierarchy="primary" size="default" full
+                 label="${ctaLabel}" data-action="${ctaAction}"
+                 ${disabled ? "disabled" : ""} ${d.submitting ? "busy" : ""}></oneapp-poc-button>`
+            : ""
+        }
         ${blockNote}
       </aside>`;
 

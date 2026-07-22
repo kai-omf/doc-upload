@@ -1,6 +1,6 @@
 // du-home — the prototype flow selector at "/". OneApp web chrome (Home active, no back row) plus
-// two option cards linking to Option A ("/a/") and Option B ("/b/"). Links are built from BASE_URL
-// so they resolve locally ("/") and under the Pages subpath ("/doc-upload/").
+// option cards linking to A ("/a/"), B ("/b/"), and C ("/c/"). Links are built from BASE_URL so they
+// resolve locally ("/") and under the Pages subpath ("/doc-upload/").
 import "./du-home.css";
 import "@shared/chrome/du-web-nav";
 import { icon } from "@shared/icons";
@@ -14,7 +14,7 @@ export class DuHome extends HTMLElement {
       <main class="home-main" aria-label="Choose a flow">
         <div class="home-page">
           <h1 class="headline-page home-title">Document upload</h1>
-          <p class="home-sub body-supporting">Two prototype directions for the same flow. Pick one to explore.</p>
+          <p class="home-sub body-supporting">Three prototype directions for the same flow. Pick one to explore.</p>
           <div class="home-cards">
             <a class="flow-card" href="${BASE}a/">
               <span class="flow-eyebrow">Direction A</span>
@@ -26,6 +26,12 @@ export class DuHome extends HTMLElement {
               <span class="flow-eyebrow">Direction B</span>
               <span class="flow-name">Guided Flow</span>
               <span class="flow-desc">Upload one document at a time in a focused, step-by-step flow with a document rail.</span>
+              <span class="flow-go">Open ${icon("chevron-right", 18)}</span>
+            </a>
+            <a class="flow-card" href="${BASE}c/">
+              <span class="flow-eyebrow">Direction C</span>
+              <span class="flow-name">Instant Upload</span>
+              <span class="flow-desc">Every document on one page — each file uploads the moment you add it, no submit step.</span>
               <span class="flow-go">Open ${icon("chevron-right", 18)}</span>
             </a>
           </div>

@@ -311,7 +311,10 @@ export class DuApp extends HTMLElement {
     if (store.allUploaded) {
       return `<oneapp-poc-alert type="success" heading="You're all set" supporting="We've sent your ${req.docCount} documents to your loan team for review. There's nothing else you need to do right now."></oneapp-poc-alert>`;
     }
-    return `<oneapp-poc-alert type="info" heading="Documents for your personal loan" supporting="Your loan team needs these by ${escAttr(req.dueDateLabel)} to keep your request on track. Upload each one below."></oneapp-poc-alert>`;
+    // Reached from the Document Center entry banner, which already said "documents requested". This
+    // one orients the guided task (deadline + the one-at-a-time mechanic) instead of re-announcing.
+    // Encryption reassurance lives at the drop zone here, so it isn't repeated in the banner.
+    return `<oneapp-poc-alert type="info" heading="Upload your documents by ${escAttr(req.dueDateLabel)}" supporting="Open each document below to upload it — your loan team reviews them as they come in."></oneapp-poc-alert>`;
   }
   private progressHeaderHtml(): string {
     return `<du-progress-header uploaded="${store.uploadedCount}" total="${store.getState().request.docCount}"></du-progress-header>`;

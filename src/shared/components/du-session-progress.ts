@@ -5,7 +5,8 @@
 import "./du-session-progress.css";
 
 export class DuSessionProgress extends HTMLElement {
-  static observedAttributes = ["submitted", "total", "compact"];
+  // `verb` is the count noun — "submitted" (A batch) or "uploaded" (C instant).
+  static observedAttributes = ["submitted", "total", "compact", "verb"];
   connectedCallback(): void {
     this.render();
   }
@@ -15,15 +16,16 @@ export class DuSessionProgress extends HTMLElement {
   private render(): void {
     const submitted = Number(this.getAttribute("submitted") ?? "0");
     const total = Math.max(1, Number(this.getAttribute("total") ?? "4"));
+    const verb = this.getAttribute("verb") ?? "submitted";
     const pct = Math.round((Math.min(submitted, total) / total) * 100);
     this.innerHTML = `
       <div class="wrap">
         <div class="labels">
           <p class="title">Session progress</p>
-          <p class="count">${submitted} of ${total} submitted</p>
+          <p class="count">${submitted} of ${total} ${verb}</p>
         </div>
         <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="${total}"
-             aria-valuenow="${submitted}" aria-label="Documents submitted">
+             aria-valuenow="${submitted}" aria-label="Documents ${verb}">
           <div class="fill" style="width:${pct}%"></div>
         </div>
       </div>`;

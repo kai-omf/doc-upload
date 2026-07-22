@@ -4,8 +4,7 @@
 // (Figma: Doc Upload / Document Status, node 110:1125.)
 import "./du-status-pill.css";
 import { icon } from "@shared/icons";
-import type { DocStatus } from "../state/store-a";
-import { STATUS_META } from "./status-meta";
+import { STATUS_META, type DocStatus } from "./status-meta";
 
 export class DuStatusPill extends HTMLElement {
   static observedAttributes = ["status", "label"];
