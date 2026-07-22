@@ -24,9 +24,10 @@ const LOANS: Loan[] = [
 
 export class DuDocCenter extends HTMLElement {
   connectedCallback(): void {
-    // The entry banner routes into whichever upload direction the demo wants (default: Single Page).
+    // The entry banner routes into whichever upload direction the demo wants (default: Instant
+    // Upload / Option C — the direction that fits the backend document-ID tagging model).
     const flowParam = new URLSearchParams(location.search).get("flow");
-    const flow = flowParam === "b" || flowParam === "c" ? flowParam : "a";
+    const flow = flowParam === "a" || flowParam === "b" ? flowParam : "c";
 
     const rows = LOANS.map(
       (l) => `
