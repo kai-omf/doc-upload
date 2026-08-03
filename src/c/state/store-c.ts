@@ -7,7 +7,6 @@
 export type DocStatus =
   | "not-started" // nothing staged → drop zone
   | "validation-error" // staged file failed size/type → inline error + drop zone
-  | "note-required" // Other doc has a file but no note yet → amber "Needs attention"
   | "selected" // staged + valid, waiting for this doc's Upload → blue "Ready"
   | "uploading" // this document is uploading → determinate progress
   | "uploaded" // sent to the server, read-only → green "Uploaded"
@@ -28,7 +27,6 @@ export interface DocState {
   required: boolean;
   status: DocStatus;
   file?: FileInfo;
-  note?: string;
   progress?: number; // 0–100 while uploading
   message?: string;
   /** Prototype-only: make this document's first upload attempt fail, to demo failed→retry. */
@@ -88,10 +86,12 @@ function seedRequest(): RequestState {
       status: "not-started",
     },
     {
+      // Backend tags this as the free-text "Other" request, but the customer never sees that. The
+      // description the team member entered upstream simply fills the ordinary title/description
+      // slots, so the card is indistinguishable from any other requested document.
       id: "other",
-      name: "Other document",
-      description:
-        "Sending something we didn't list? Tell us what it is so your loan team can route it correctly.",
+      name: "Bank statement",
+      description: "Your most recent 12 months for your primary checking or savings account.",
       isOther: true,
       required: true,
       status: "not-started",
@@ -191,13 +191,8 @@ class StoreC {
   private revokeUrl(doc: DocState | undefined): void {
     if (doc?.file?.url) URL.revokeObjectURL(doc.file.url);
   }
-  /** The staged status a doc with a valid file should hold, honoring the Other note gate. */
-  private stagedStatus(doc: DocState): DocStatus {
-    if (doc.isOther && !doc.note?.trim()) return "note-required";
-    return "selected";
-  }
 
-  /** Validate + stage a chosen file (instant, no network). → 'selected' | 'note-required' | 'validation-error'. */
+  /** Validate + stage a chosen file (instant, no network). → 'selected' | 'validation-error'. */
   selectFile(id: string, file: File): void {
     const doc = this.getDoc(id);
     if (!doc) return;
@@ -223,8 +218,7 @@ class StoreC {
         typeLabel: typeLabelOf(file.name),
         url: URL.createObjectURL(file),
       };
-      const staged = { ...doc, file: fileInfo };
-      this.patch(id, { file: fileInfo, message: undefined, status: this.stagedStatus(staged) });
+      this.patch(id, { file: fileInfo, message: undefined, status: "selected" });
     }
     this.emit();
   }
@@ -240,19 +234,8 @@ class StoreC {
       file: undefined,
       progress: undefined,
       message: undefined,
-      note: doc?.isOther ? doc.note : undefined,
     });
     this.emit();
-  }
-  // `silent` keeps input focus (no re-render); the view syncs the gate imperatively.
-  setNote(id: string, note: string, silent = false): void {
-    const doc = this.getDoc(id);
-    if (!doc) return;
-    doc.note = note;
-    if (doc.file && (doc.status === "selected" || doc.status === "note-required")) {
-      doc.status = this.stagedStatus(doc);
-    }
-    if (!silent) this.emit();
   }
 
   /** Upload this one document (independent of the others). Requires a staged, valid file. */

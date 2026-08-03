@@ -70,6 +70,10 @@ export class DuChecklistCard extends HTMLElement {
         helper="Tell us what it is so your loan team can route it correctly."
         ${invalid ? 'invalid error="Add a short note so we can route this document."' : ""}>
       </oneapp-poc-note-input>`;
+    // Batch (A) only: the "Other" doc asks the customer to name the document (its note field). Instant
+    // mode (C) treats "Other" as an ordinary document — the team-member description is passed straight
+    // into the title/description slots upstream, so there's no special treatment and no note field.
+    const otherLead = isOther && !instant ? noteField(false) : "";
     const errorAlert = `<oneapp-poc-alert type="error" heading="We couldn't add that file" supporting="${message}"></oneapp-poc-alert>`;
     // Instant mode only: the per-card Upload button (disabled while a required note is missing).
     const uploadBtn = (disabled: boolean) =>
@@ -86,19 +90,19 @@ export class DuChecklistCard extends HTMLElement {
 
     switch (status) {
       case "not-started":
-        return isOther ? noteField(false) + dropZone : dropZone;
+        return otherLead + dropZone;
       case "validation-error":
-        return (isOther ? noteField(false) : "") + errorAlert + dropZone;
+        return otherLead + errorAlert + dropZone;
       case "note-required":
-        // The note field shows an error until a type is entered. du-a/c-app toggles the field's
-        // `invalid` attribute live as the user types (note-required ↔ ready/selected), so the body is
-        // never re-rendered mid-edit (which would drop input focus). Instant mode also shows a
-        // disabled Upload button here so the gate is obvious.
+        // Batch (A) only: the note field shows an error until a type is entered. du-a-app toggles the
+        // field's `invalid` attribute live as the user types (note-required ↔ ready), so the body is
+        // never re-rendered mid-edit (which would drop input focus). Instant mode (C) no longer gates
+        // on a customer note — the "Other" description is team-provided — so this state never occurs.
         return noteField(true) + fileRow("replace,remove") + uploadBtn(true);
       case "ready": // A batch: staged, waiting for the single Submit
-        return (isOther ? noteField(false) : "") + fileRow("replace,remove");
+        return otherLead + fileRow("replace,remove");
       case "selected": // C instant: staged, waiting for this doc's Upload
-        return (isOther ? noteField(false) : "") + fileRow("replace,remove") + uploadBtn(false);
+        return otherLead + fileRow("replace,remove") + uploadBtn(false);
       case "submitting":
         return fileRow("") + progressMarkup("Submitting");
       case "uploading":
@@ -108,7 +112,7 @@ export class DuChecklistCard extends HTMLElement {
         return fileRow("preview");
       case "failed":
         return (
-          (isOther ? noteField(false) : "") +
+          otherLead +
           `<oneapp-poc-alert type="error" heading="That didn't go through" supporting="${message}"></oneapp-poc-alert>` +
           fileRow("") +
           `<div class="failed-actions">
@@ -134,7 +138,7 @@ export class DuChecklistCard extends HTMLElement {
             <h2 class="title" id="${headingId}">${name}</h2>
             <du-status-pill status="${status}"></du-status-pill>
           </div>
-          <p class="desc">${description}</p>
+          ${description ? `<p class="desc">${description}</p>` : ""}
         </div>
         <div class="body">${this.bodyMarkup()}</div>
       </section>`;

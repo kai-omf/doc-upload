@@ -20,14 +20,14 @@ const uploadedAll: Record<string, Partial<DocState>> = {
   "proof-of-income": { status: "uploaded", file: FILE["proof-of-income"] },
   "photo-id": { status: "uploaded", file: FILE["photo-id"] },
   "proof-of-residence": { status: "uploaded", file: FILE["proof-of-residence"] },
-  other: { status: "uploaded", file: FILE["other"], note: "Bank statement" },
+  other: { status: "uploaded", file: FILE["other"] },
 };
 
 export const SCENARIOS_C: Scenario[] = [
   { id: "default", label: "Empty — all not started", group: "States", apply: () => storeC.reset() },
   {
     id: "mixed",
-    label: "Mixed — ready + error + note + done",
+    label: "Mixed — ready + error + done",
     group: "States",
     apply: () =>
       storeC.loadScenario({
@@ -38,7 +38,7 @@ export const SCENARIOS_C: Scenario[] = [
             "That file is 12.4 MB — larger than the 10 MB limit. Choose a smaller PDF, JPG, or PNG file.",
         },
         "proof-of-residence": { status: "uploaded", file: FILE["proof-of-residence"] },
-        other: { status: "note-required", file: FILE["other"], note: "" },
+        other: { status: "selected", file: FILE["other"] },
       }),
   },
   {

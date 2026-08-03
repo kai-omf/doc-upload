@@ -211,12 +211,6 @@ export class DuCApp extends HTMLElement {
         if (file) this.preview.open({ url: file.url, name: file.name, type: file.typeLabel });
       }
     });
-    this.addEventListener("note-change", (e) => {
-      const id = this.cardIdOf(e);
-      if (!id) return;
-      storeC.setNote(id, (e as CustomEvent<string>).detail, true); // silent — keep input focus
-      this.syncGating(id);
-    });
     this.addEventListener("exit", () => this.goHome()); // rail exit CTA (dispatches CustomEvent)
     this.addEventListener("nav-back", () => this.goHome());
     // The mobile completion button is a plain button (not the rail) — wire its click to go home.
@@ -232,33 +226,6 @@ export class DuCApp extends HTMLElement {
   private openReplacePicker(id: string): void {
     this.replaceTargetId = id;
     this.replaceInput.click();
-  }
-
-  // After a silent note change: refresh the affected card's pill + note error + rail, without
-  // re-rendering the card body (which would drop the note field's focus). Gates the Upload button.
-  private syncGating(id: string): void {
-    const doc = storeC.getDoc(id);
-    const card = this.querySelector(`du-checklist-card[doc-id="${id}"]`);
-    if (doc && card) {
-      card.querySelector("du-status-pill")?.setAttribute("status", doc.status);
-      card.querySelector<HTMLElement>(".card")?.setAttribute("data-status", doc.status);
-      const note = card.querySelector("oneapp-poc-note-input");
-      if (note) {
-        if (doc.status === "note-required") {
-          note.setAttribute("error", "Add a short note so we can route this document.");
-          note.setAttribute("invalid", "");
-        } else {
-          note.removeAttribute("invalid");
-        }
-      }
-      // Enable/disable this card's Upload button as the note gate opens/closes.
-      const upload = card.querySelector('oneapp-poc-button[data-action="upload"]');
-      if (upload) {
-        if (doc.status === "note-required") upload.setAttribute("disabled", "");
-        else upload.removeAttribute("disabled");
-      }
-    }
-    this.refreshRail();
   }
 
   private railData(): RailData {
@@ -291,7 +258,6 @@ export class DuCApp extends HTMLElement {
       ${doc.isOther ? "is-other" : ""}
       file-name="${escAttr(doc.file?.name ?? "")}"
       file-meta="${escAttr(meta)}"
-      note="${escAttr(doc.note ?? "")}"
       message="${escAttr(doc.message ?? "")}"
       progress="${doc.progress ?? 0}"></du-checklist-card>`;
   }
