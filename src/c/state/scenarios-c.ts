@@ -66,6 +66,42 @@ export const SCENARIOS_C: Scenario[] = [
   },
   { id: "all-uploaded", label: "Complete — all uploaded", group: "States", apply: () => storeC.loadScenario(uploadedAll) },
   {
+    id: "photo-front-back-required",
+    label: "Photo ID — front & back required",
+    group: "Photo ID",
+    apply: () =>
+      storeC.loadScenario({
+        "photo-id": {
+          description: "Upload the front and the back of your ID. Both are required.",
+          status: "not-started",
+          file: undefined,
+          demoFailOnce: false,
+          sides: [
+            { id: "front", label: "Front", required: true },
+            { id: "back", label: "Back", required: true },
+          ],
+        },
+      }),
+  },
+  {
+    id: "photo-back-optional",
+    label: "Photo ID — back optional",
+    group: "Photo ID",
+    apply: () =>
+      storeC.loadScenario({
+        "photo-id": {
+          description: "Upload the front of your ID. Add the back too if it has information on it.",
+          status: "not-started",
+          file: undefined,
+          demoFailOnce: false,
+          sides: [
+            { id: "front", label: "Front", required: true },
+            { id: "back", label: "Back", required: false },
+          ],
+        },
+      }),
+  },
+  {
     id: "one-doc",
     label: "One document requested",
     group: "Edge cases",

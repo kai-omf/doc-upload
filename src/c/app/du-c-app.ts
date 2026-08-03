@@ -17,7 +17,7 @@ import type { DuFilePreview } from "@shared/components/du-file-preview";
 import "@shared/dev/du-scenario-dock";
 import type { DuScenarioDock } from "@shared/dev/du-scenario-dock";
 import { SCENARIOS_C } from "../state/scenarios-c";
-import { storeC, type DocState, type DocStatus } from "../state/store-c";
+import { storeC, type DocState, type DocSide, type DocStatus } from "../state/store-c";
 import type { RailData } from "@shared/components/du-request-rail";
 import { isDesktop, onBreakpointChange } from "@shared/chrome/responsive";
 import { icon } from "@shared/icons";
@@ -31,6 +31,7 @@ export class DuCApp extends HTMLElement {
   private lastSig = "";
   private replaceInput!: HTMLInputElement;
   private replaceTargetId: string | null = null;
+  private replaceTargetSide: string | null = null;
   private liveRegion!: HTMLElement;
   private preview!: DuFilePreview;
   private dock!: DuScenarioDock;
@@ -52,7 +53,10 @@ export class DuCApp extends HTMLElement {
     this.replaceInput.setAttribute("aria-hidden", "true");
     this.replaceInput.addEventListener("change", () => {
       const file = this.replaceInput.files?.[0];
-      if (file && this.replaceTargetId) storeC.replaceFile(this.replaceTargetId, file);
+      if (file && this.replaceTargetId) {
+        if (this.replaceTargetSide) storeC.replaceSide(this.replaceTargetId, this.replaceTargetSide, file);
+        else storeC.replaceFile(this.replaceTargetId, file);
+      }
       this.replaceInput.value = "";
     });
     this.append(this.replaceInput);
@@ -144,7 +148,9 @@ export class DuCApp extends HTMLElement {
       storeC.hasRequest,
       storeC.allUploaded,
       storeC.isUploading,
-      storeC.docs.map((d) => d.status),
+      // Per-doc status, plus each side's filled/error state — a sided doc's body changes (front added,
+      // back revealed) even while the doc-level status stays "not-started", so track the sides too.
+      storeC.docs.map((d) => [d.status, (d.sides ?? []).map((s) => [!!s.file, !!s.message])]),
     ]);
   }
 
@@ -193,21 +199,31 @@ export class DuCApp extends HTMLElement {
     const card = (e.target as HTMLElement).closest("du-checklist-card") as HTMLElement | null;
     return card?.getAttribute("doc-id") ?? null;
   }
+  // Which side (front/back) an event came from, for multi-file documents — null for single-file docs.
+  private sideOf(e: Event): string | null {
+    return (e.target as HTMLElement).closest("[data-side]")?.getAttribute("data-side") ?? null;
+  }
   private attachEvents(): void {
     this.addEventListener("file-chosen", (e) => {
       const id = this.cardIdOf(e);
-      if (id) storeC.selectFile(id, (e as CustomEvent<File>).detail);
+      if (!id) return;
+      const side = this.sideOf(e);
+      const file = (e as CustomEvent<File>).detail;
+      if (side) storeC.selectSide(id, side, file);
+      else storeC.selectFile(id, file);
     });
     this.addEventListener("file-action", (e) => {
       const id = this.cardIdOf(e);
       if (!id) return;
       const action = (e as CustomEvent<string>).detail;
+      const side = this.sideOf(e);
       if (action === "upload") storeC.upload(id);
-      else if (action === "remove") storeC.removeFile(id);
-      else if (action === "replace") this.openReplacePicker(id);
       else if (action === "retry") storeC.retry(id);
+      else if (action === "remove") side ? storeC.removeSide(id, side) : storeC.removeFile(id);
+      else if (action === "replace") this.openReplacePicker(id, side);
       else if (action === "preview") {
-        const file = storeC.getDoc(id)?.file;
+        const doc = storeC.getDoc(id);
+        const file = side ? doc?.sides?.find((s) => s.id === side)?.file : doc?.file;
         if (file) this.preview.open({ url: file.url, name: file.name, type: file.typeLabel });
       }
     });
@@ -223,8 +239,9 @@ export class DuCApp extends HTMLElement {
   private goHome(): void {
     window.location.assign(import.meta.env.BASE_URL);
   }
-  private openReplacePicker(id: string): void {
+  private openReplacePicker(id: string, side: string | null = null): void {
     this.replaceTargetId = id;
+    this.replaceTargetSide = side;
     this.replaceInput.click();
   }
 
@@ -248,6 +265,7 @@ export class DuCApp extends HTMLElement {
 
   // ---- Render ----
   private cardHtml(doc: DocState): string {
+    if (doc.sides) return this.sidedCardHtml(doc);
     const meta = doc.file ? `${doc.file.typeLabel} · ${doc.file.sizeLabel}` : "";
     return `<du-checklist-card
       mode="instant"
@@ -258,6 +276,27 @@ export class DuCApp extends HTMLElement {
       ${doc.isOther ? "is-other" : ""}
       file-name="${escAttr(doc.file?.name ?? "")}"
       file-meta="${escAttr(meta)}"
+      message="${escAttr(doc.message ?? "")}"
+      progress="${doc.progress ?? 0}"></du-checklist-card>`;
+  }
+  private sidedCardHtml(doc: DocState): string {
+    const sideAttrs = (prefix: string, side: DocSide | undefined): string => {
+      if (!side) return "";
+      const meta = side.file ? `${side.file.typeLabel} · ${side.file.sizeLabel}` : "";
+      return `${prefix}-file-name="${escAttr(side.file?.name ?? "")}" ${prefix}-file-meta="${escAttr(meta)}" ${prefix}-message="${escAttr(side.message ?? "")}"`;
+    };
+    const front = doc.sides?.find((s) => s.id === "front");
+    const back = doc.sides?.find((s) => s.id === "back");
+    return `<du-checklist-card
+      mode="instant"
+      sided
+      doc-id="${doc.id}"
+      name="${escAttr(doc.name)}"
+      description="${escAttr(doc.description)}"
+      status="${doc.status}"
+      ${back && !back.required ? "back-optional" : ""}
+      ${sideAttrs("front", front)}
+      ${sideAttrs("back", back)}
       message="${escAttr(doc.message ?? "")}"
       progress="${doc.progress ?? 0}"></du-checklist-card>`;
   }

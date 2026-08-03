@@ -51,6 +51,21 @@ du-checklist-card .desc {
   color: var(--omf-cx-core-color-body-moderate, #62738c);
 }
 
+/* Multi-file (front/back) slots — a labelled sub-section per side within the one card. */
+du-checklist-card .side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-row-small, 8px);
+}
+du-checklist-card .side-label {
+  margin: 0;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-body-supporting-size, 15px);
+  line-height: var(--omf-cx-font-body-supporting-line-height, 20px);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+
 /* Body — stacked primitives per status. Scoped to the card's own direct child so it never leaks
    into a descendant's `.body` (e.g. oneapp-poc-alert's, which has its own tighter gap). */
 du-checklist-card .card > .body {

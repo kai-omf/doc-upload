@@ -19,6 +19,16 @@ export interface FileInfo {
   url: string; // object URL for previewing the actual file the user picked
 }
 
+/** One side of a multi-file document (e.g. the front / back of a photo ID). All sides upload together
+ *  against the one document ID; `required` sides gate the doc's Upload, optional ones don't. */
+export interface DocSide {
+  id: "front" | "back";
+  label: string;
+  required: boolean;
+  file?: FileInfo;
+  message?: string; // per-side validation error (shown in that slot)
+}
+
 export interface DocState {
   id: string;
   name: string;
@@ -27,6 +37,9 @@ export interface DocState {
   required: boolean;
   status: DocStatus;
   file?: FileInfo;
+  /** When present, this document collects more than one file (front/back). `file` is unused; the
+   *  sides are gathered one at a time and uploaded together as one pointed operation. */
+  sides?: DocSide[];
   progress?: number; // 0–100 while uploading
   message?: string;
   /** Prototype-only: make this document's first upload attempt fail, to demo failed→retry. */
@@ -190,6 +203,31 @@ class StoreC {
   }
   private revokeUrl(doc: DocState | undefined): void {
     if (doc?.file?.url) URL.revokeObjectURL(doc.file.url);
+    for (const side of doc?.sides ?? []) if (side.file?.url) URL.revokeObjectURL(side.file.url);
+  }
+
+  /** Client-side type/size validation (no network). Returns the staged FileInfo or an error message. */
+  private validateFile(file: File): { ok: true; info: FileInfo } | { ok: false; message: string } {
+    const ext = extensionOf(file.name);
+    const sizeMb = file.size / (1024 * 1024);
+    if (!(UPLOAD_CONFIG.allowedExtensions as readonly string[]).includes(ext)) {
+      return { ok: false, message: `That file type isn't supported. Choose a ${UPLOAD_CONFIG.allowedLabel} file.` };
+    }
+    if (sizeMb > UPLOAD_CONFIG.maxSizeMb) {
+      return {
+        ok: false,
+        message: `That file is ${formatSize(file.size)} — larger than the ${UPLOAD_CONFIG.maxSizeMb} MB limit. Choose a smaller ${UPLOAD_CONFIG.allowedLabel} file.`,
+      };
+    }
+    return {
+      ok: true,
+      info: {
+        name: file.name,
+        sizeLabel: formatSize(file.size),
+        typeLabel: typeLabelOf(file.name),
+        url: URL.createObjectURL(file),
+      },
+    };
   }
 
   /** Validate + stage a chosen file (instant, no network). → 'selected' | 'validation-error'. */
@@ -197,29 +235,54 @@ class StoreC {
     const doc = this.getDoc(id);
     if (!doc) return;
     this.revokeUrl(doc);
-    const ext = extensionOf(file.name);
-    const sizeMb = file.size / (1024 * 1024);
-    if (!(UPLOAD_CONFIG.allowedExtensions as readonly string[]).includes(ext)) {
-      this.patch(id, {
-        status: "validation-error",
-        file: undefined,
-        message: `That file type isn't supported. Choose a ${UPLOAD_CONFIG.allowedLabel} file.`,
-      });
-    } else if (sizeMb > UPLOAD_CONFIG.maxSizeMb) {
-      this.patch(id, {
-        status: "validation-error",
-        file: undefined,
-        message: `That file is ${formatSize(file.size)} — larger than the ${UPLOAD_CONFIG.maxSizeMb} MB limit. Choose a smaller ${UPLOAD_CONFIG.allowedLabel} file.`,
-      });
+    const result = this.validateFile(file);
+    if (!result.ok) {
+      this.patch(id, { status: "validation-error", file: undefined, message: result.message });
     } else {
-      const fileInfo: FileInfo = {
-        name: file.name,
-        sizeLabel: formatSize(file.size),
-        typeLabel: typeLabelOf(file.name),
-        url: URL.createObjectURL(file),
-      };
-      this.patch(id, { file: fileInfo, message: undefined, status: "selected" });
+      this.patch(id, { file: result.info, message: undefined, status: "selected" });
     }
+    this.emit();
+  }
+
+  // ---- Multi-file (front/back) documents ----
+  /** True once every *required* side has a valid file (optional sides don't gate). */
+  private requiredSidesFilled(doc: DocState): boolean {
+    return (doc.sides ?? []).filter((s) => s.required).every((s) => !!s.file);
+  }
+  /** Recompute a sided doc's gathering-phase status from its sides (uploading/uploaded/failed stay). */
+  private syncSidedStatus(doc: DocState): void {
+    if (doc.status === "uploading" || doc.status === "uploaded" || doc.status === "failed") return;
+    if ((doc.sides ?? []).some((s) => s.message)) doc.status = "validation-error";
+    else doc.status = this.requiredSidesFilled(doc) ? "selected" : "not-started";
+  }
+  /** Validate + stage a file into one side (front/back) of a multi-file document. */
+  selectSide(id: string, sideId: string, file: File): void {
+    const doc = this.getDoc(id);
+    const side = doc?.sides?.find((s) => s.id === sideId);
+    if (!doc || !side) return;
+    if (side.file?.url) URL.revokeObjectURL(side.file.url);
+    const result = this.validateFile(file);
+    if (!result.ok) {
+      side.file = undefined;
+      side.message = result.message;
+    } else {
+      side.file = result.info;
+      side.message = undefined;
+    }
+    this.syncSidedStatus(doc);
+    this.emit();
+  }
+  replaceSide(id: string, sideId: string, file: File): void {
+    this.selectSide(id, sideId, file);
+  }
+  removeSide(id: string, sideId: string): void {
+    const doc = this.getDoc(id);
+    const side = doc?.sides?.find((s) => s.id === sideId);
+    if (!doc || !side) return;
+    if (side.file?.url) URL.revokeObjectURL(side.file.url);
+    side.file = undefined;
+    side.message = undefined;
+    this.syncSidedStatus(doc);
     this.emit();
   }
   replaceFile(id: string, file: File): void {
@@ -241,7 +304,8 @@ class StoreC {
   /** Upload this one document (independent of the others). Requires a staged, valid file. */
   upload(id: string): void {
     const doc = this.getDoc(id);
-    if (!doc || doc.status !== "selected" || !doc.file) return;
+    if (!doc || doc.status !== "selected") return;
+    if (!doc.sides && !doc.file) return; // single-file docs need their one file staged
     this.clearTimer(id);
     this.patch(id, { status: "uploading", progress: 0, message: undefined });
     this.emit();
@@ -273,7 +337,8 @@ class StoreC {
   /** Retry a failed upload — restage to selected, then upload. */
   retry(id: string): void {
     const doc = this.getDoc(id);
-    if (!doc || doc.status !== "failed" || !doc.file) return;
+    if (!doc || doc.status !== "failed") return;
+    if (!doc.sides && !doc.file) return;
     doc.status = "selected";
     this.upload(id);
   }

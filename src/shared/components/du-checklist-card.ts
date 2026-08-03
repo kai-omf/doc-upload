@@ -34,6 +34,15 @@ export class DuChecklistCard extends HTMLElement {
     "accept",
     "hint",
     "mode",
+    // Multi-file (front/back) documents — when `sided` is present the body renders two slots.
+    "sided",
+    "front-file-name",
+    "front-file-meta",
+    "front-message",
+    "back-file-name",
+    "back-file-meta",
+    "back-message",
+    "back-optional",
   ];
   connectedCallback(): void {
     this.render();
@@ -47,6 +56,7 @@ export class DuChecklistCard extends HTMLElement {
   }
 
   private bodyMarkup(): string {
+    if (this.hasAttribute("sided")) return this.sidedBody();
     const status = this.status;
     const fileName = this.getAttribute("file-name") ?? "";
     const fileMeta = this.getAttribute("file-meta") ?? "";
@@ -123,6 +133,83 @@ export class DuChecklistCard extends HTMLElement {
       default:
         return dropZone;
     }
+  }
+
+  // Multi-file (front/back) body — instant mode only. The back reveals only once the front has a
+  // file (sequential single zone), and both sides upload together via the one Upload button.
+  private sidedBody(): string {
+    const status = this.status;
+    const progress = Number(this.getAttribute("progress") ?? "0");
+    const accept = this.getAttribute("accept") ?? ".pdf,.jpg,.jpeg,.png";
+    const hint = this.getAttribute("hint") ?? "PDF, JPG, or PNG · up to 10 MB";
+    const message = this.getAttribute("message") ?? "";
+    const name = this.getAttribute("name") ?? "document";
+
+    const front = {
+      name: this.getAttribute("front-file-name") ?? "",
+      meta: this.getAttribute("front-file-meta") ?? "",
+      message: this.getAttribute("front-message") ?? "",
+    };
+    const back = {
+      name: this.getAttribute("back-file-name") ?? "",
+      meta: this.getAttribute("back-file-meta") ?? "",
+      message: this.getAttribute("back-message") ?? "",
+    };
+    const backLabel = this.hasAttribute("back-optional") ? "Back (optional)" : "Back";
+
+    const wrap = (side: string, label: string, inner: string) =>
+      `<div class="side" data-side="${side}"><p class="side-label">${label}</p>${inner}</div>`;
+    const zone = `<du-drop-zone accept="${accept}" hint="${hint}"></du-drop-zone>`;
+    const row = (n: string, m: string, actions: string) =>
+      `<du-file-row variant="filled" name="${n}" meta="${m}" actions="${actions}"></du-file-row>`;
+    const sideError = (msg: string) =>
+      `<oneapp-poc-alert type="error" heading="We couldn't add that file" supporting="${msg}"></oneapp-poc-alert>`;
+    const progressMarkup = `
+      <div class="submit-progress">
+        <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}" aria-label="Uploading ${name}">
+          <div class="fill" style="width:${progress}%"></div>
+        </div>
+        <p class="pct">Uploading… ${progress}%</p>
+      </div>`;
+
+    // Terminal / in-flight doc states: show whichever sides hold a file.
+    if (status === "uploading") {
+      return (
+        (front.name ? wrap("front", "Front", row(front.name, front.meta, "")) : "") +
+        (back.name ? wrap("back", backLabel, row(back.name, back.meta, "")) : "") +
+        progressMarkup
+      );
+    }
+    if (status === "uploaded" || status === "submitted") {
+      return (
+        (front.name ? wrap("front", "Front", row(front.name, front.meta, "preview")) : "") +
+        (back.name ? wrap("back", backLabel, row(back.name, back.meta, "preview")) : "")
+      );
+    }
+    if (status === "failed") {
+      return (
+        `<oneapp-poc-alert type="error" heading="That didn't go through" supporting="${message}"></oneapp-poc-alert>` +
+        (front.name ? wrap("front", "Front", row(front.name, front.meta, "replace,remove")) : "") +
+        (back.name ? wrap("back", backLabel, row(back.name, back.meta, "replace,remove")) : "") +
+        `<div class="failed-actions"><oneapp-poc-button hierarchy="primary" size="small" label="Try again" data-action="retry"></oneapp-poc-button></div>`
+      );
+    }
+
+    // Gathering (not-started / validation-error / selected): sequential reveal.
+    const frontSlot = front.name
+      ? wrap("front", "Front", row(front.name, front.meta, "replace,remove"))
+      : wrap("front", "Front", (front.message ? sideError(front.message) : "") + zone);
+    // The back slot appears only once the front has a valid file.
+    const backSlot = front.name
+      ? back.name
+        ? wrap("back", backLabel, row(back.name, back.meta, "replace,remove"))
+        : wrap("back", backLabel, (back.message ? sideError(back.message) : "") + zone)
+      : "";
+    // Upload appears once the front is in; enabled only when the doc is ready (required sides filled).
+    const upload = front.name
+      ? `<oneapp-poc-button class="upload-btn" hierarchy="primary" size="default" label="Upload document" data-action="upload"${status === "selected" ? "" : " disabled"}></oneapp-poc-button>`
+      : "";
+    return frontSlot + backSlot + upload;
   }
 
   private render(): void {
