@@ -175,7 +175,12 @@ export class DuCApp extends HTMLElement {
       this.prevStatus.set(d.id, d.status);
     }
     if (storeC.allUploaded && !this.wasAllUploaded) {
-      this.announce(`All ${storeC.getState().request.docCount} documents uploaded. You're all set.`);
+      const n = storeC.getState().request.docCount;
+      this.announce(
+        n === 1
+          ? "Your document is uploaded. You're all set."
+          : `All ${n} documents uploaded. You're all set.`,
+      );
     }
     this.wasAllUploaded = storeC.allUploaded;
   }
@@ -292,12 +297,20 @@ export class DuCApp extends HTMLElement {
   }
   private bannerHtml(): string {
     const req = storeC.getState().request;
+    const single = req.docCount === 1;
     if (storeC.allUploaded) {
-      return `<oneapp-poc-alert type="success" heading="You're all set" supporting="We've uploaded your ${req.docCount} documents to your loan team for review. There's nothing else you need to do right now."></oneapp-poc-alert>`;
+      const what = single ? "your document" : `your ${req.docCount} documents`;
+      return `<oneapp-poc-alert type="success" heading="You're all set" supporting="We've uploaded ${what} to your loan team for review. There's nothing else you need to do right now."></oneapp-poc-alert>`;
     }
     // Reached from the Document Center entry banner, which already delivered "documents requested".
     // Orients the task (deadline + the per-document upload model) rather than re-announcing.
-    return `<oneapp-poc-alert type="info" heading="Upload your documents by ${escAttr(req.dueDateLabel)}" supporting="Add each file below, then upload it — each document is sent to your loan team on its own. Everything's encrypted."></oneapp-poc-alert>`;
+    const heading = single
+      ? `Upload your document by ${escAttr(req.dueDateLabel)}`
+      : `Upload your documents by ${escAttr(req.dueDateLabel)}`;
+    const supporting = single
+      ? "Add your file below, then upload it — it's sent straight to your loan team. Everything's encrypted."
+      : "Add each file below, then upload it — each document is sent to your loan team on its own. Everything's encrypted.";
+    return `<oneapp-poc-alert type="info" heading="${heading}" supporting="${supporting}"></oneapp-poc-alert>`;
   }
 
   // No active/expired request: the standalone page still loads (it owns its URL), so it shows an
@@ -340,9 +353,11 @@ export class DuCApp extends HTMLElement {
       ? `<div class="c-done"><oneapp-poc-button hierarchy="primary" full label="Back to home page" data-action="exit"></oneapp-poc-button></div>`
       : "";
 
-    // The desktop status rail only appears in the default layout. In single-column mode (and on
-    // mobile), progress moves to a compact bar at the top and the cards carry the per-doc status.
-    const useRail = desktop && !this.singleColumn;
+    // A request for a single document gets a focused one-column view: no status rail and no session
+    // progress (a 1-of-1 summary is just noise). Otherwise the desktop status rail appears in the
+    // default layout; in single-column mode (and on mobile) progress moves to a compact top bar.
+    const solo = storeC.docs.length === 1;
+    const useRail = desktop && !this.singleColumn && !solo;
     const main = useRail
       ? `
         <h1 class="a-headline headline-page">Upload Documents</h1>
@@ -354,10 +369,11 @@ export class DuCApp extends HTMLElement {
       : `
         <h1 class="a-headline headline-page">Upload Documents</h1>
         <div class="banner-wrap">${this.bannerHtml()}</div>
-        <du-session-progress compact submitted="${storeC.uploadedCount}" total="${total}" verb="uploaded"></du-session-progress>
+        ${solo ? "" : `<du-session-progress compact submitted="${storeC.uploadedCount}" total="${total}" verb="uploaded"></du-session-progress>`}
         <div class="card-stack">${cards}</div>
         ${doneCta}`;
-    const pageClass = this.singleColumn ? "a-page a-page--single" : "a-page";
+    // Single card (solo or the single-column variant) sits in a narrower centred column.
+    const pageClass = solo || this.singleColumn ? "a-page a-page--single" : "a-page";
 
     const changed = new Set<string>();
     for (const d of storeC.docs) {

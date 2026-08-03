@@ -66,6 +66,12 @@ export const SCENARIOS_C: Scenario[] = [
   },
   { id: "all-uploaded", label: "Complete — all uploaded", group: "States", apply: () => storeC.loadScenario(uploadedAll) },
   {
+    id: "one-doc",
+    label: "One document requested",
+    group: "Edge cases",
+    apply: () => storeC.loadSingleRequest(),
+  },
+  {
     id: "no-request",
     label: "No active request (empty state)",
     group: "Edge cases",

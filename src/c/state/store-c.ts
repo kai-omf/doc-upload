@@ -106,6 +106,29 @@ function seedRequest(): RequestState {
   };
 }
 
+// A request for a single document (the loan team asked for just one thing). Drives the focused
+// one-document view — no status rail or session progress, since a 1-of-1 summary is just noise.
+function seedSingleRequest(): RequestState {
+  const docs: DocState[] = [
+    {
+      id: "proof-of-income",
+      name: "Proof of income",
+      description:
+        "A recent pay stub, W-2, or benefits statement from the last 60 days. One file per document.",
+      isOther: false,
+      required: true,
+      status: "not-started",
+    },
+  ];
+  return {
+    id: "4821",
+    loanLabel: "Personal loan · Request #4821",
+    dueDateLabel: "Jul 10",
+    docCount: 1,
+    docs,
+  };
+}
+
 function formatSize(bytes: number): string {
   if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   if (bytes >= 1024) return `${Math.round(bytes / 1024)} KB`;
@@ -294,6 +317,15 @@ class StoreC {
     for (const doc of this.docs) this.revokeUrl(doc);
     this.state = { request: seedRequest() };
     this._noRequest = true;
+    this.emit();
+  }
+
+  /** Demo/edge case: a request for a single document → focused one-document view (no rail/progress). */
+  loadSingleRequest(): void {
+    for (const id of [...this.timers.keys()]) this.clearTimer(id);
+    for (const doc of this.docs) this.revokeUrl(doc);
+    this._noRequest = false;
+    this.state = { request: seedSingleRequest() };
     this.emit();
   }
 
