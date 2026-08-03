@@ -21,6 +21,60 @@ du-c-app .a-page {
   }
 }
 
+/* Single-column variant (?layout=single): no desktop rail, capped at 640px. */
+du-c-app .a-page--single {
+  max-width: 640px;
+}
+
+/* Empty state (no active request): always one column, in a narrower centred column (matches the
+   Document Center width). Independent of the 2-column / single-column layout variants. */
+du-c-app .a-page--empty {
+  max-width: 704px;
+}
+du-c-app .c-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--omf-cx-gap-tile-small, 12px);
+  padding: var(--omf-cx-padding-surface-base, 24px);
+  background: var(--omf-cx-core-color-surface-base, #ffffff);
+  border: 1px solid var(--omf-cx-core-color-line-muted, #e8eaec);
+  border-radius: var(--omf-cx-shape-radius-large-1, 16px);
+}
+du-c-app .c-empty-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+du-c-app .c-empty-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--omf-cx-gap-group-small, 4px);
+}
+du-c-app .c-empty-title {
+  margin: 0;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-label-default-size, 17px);
+  line-height: var(--omf-cx-font-label-default-line-height, 24px);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+du-c-app .c-empty-body {
+  margin: 0;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-supporting-size, 15px);
+  line-height: var(--omf-cx-font-body-supporting-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+
 du-c-app .a-headline {
   margin: 0 0 20px;
   color: var(--omf-cx-core-color-body-emphasis, #051958);

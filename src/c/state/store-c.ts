@@ -126,6 +126,8 @@ class StoreC {
   private state: AppState = { request: seedRequest() };
   private listeners = new Set<Listener>();
   private timers = new Map<string, ReturnType<typeof setInterval>>();
+  // True when the customer lands on the standalone page with no active/expired request → empty state.
+  private _noRequest = false;
 
   subscribe(fn: Listener): () => void {
     this.listeners.add(fn);
@@ -140,6 +142,10 @@ class StoreC {
   }
   get docs(): DocState[] {
     return this.state.request.docs;
+  }
+  /** False when there's no active document request → the page shows its empty state. */
+  get hasRequest(): boolean {
+    return !this._noRequest;
   }
   getDoc(id: string): DocState | undefined {
     return this.docs.find((d) => d.id === id);
@@ -277,7 +283,17 @@ class StoreC {
   reset(): void {
     for (const id of [...this.timers.keys()]) this.clearTimer(id);
     for (const doc of this.docs) this.revokeUrl(doc);
+    this._noRequest = false;
     this.state = { request: seedRequest() };
+    this.emit();
+  }
+
+  /** Demo/edge case: land the page with no active request → empty state (no cards, no rail). */
+  loadEmptyRequest(): void {
+    for (const id of [...this.timers.keys()]) this.clearTimer(id);
+    for (const doc of this.docs) this.revokeUrl(doc);
+    this.state = { request: seedRequest() };
+    this._noRequest = true;
     this.emit();
   }
 

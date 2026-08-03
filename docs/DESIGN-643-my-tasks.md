@@ -6,7 +6,7 @@ Owner: Kai. Compiled July 27, 2026. Updated August 3, 2026 after Michael's direc
 ## Design / build (prototype)
 
 - [ ] **One-document-requested view.** Build the single-requested-document case. Now unblocked: direction is locked on Option C. _(7/24, confirmed 7/28)_
-- [ ] **"No documents requested" empty state.** For the standalone page when someone lands with no active or an expired request. Michael confirmed it is still needed because the page has its own URL. _(7/24, confirmed 7/28)_
+- [x] **"No documents requested" empty state.** For the standalone page when someone lands with no active or an expired request. Michael confirmed it is still needed because the page has its own URL. _(7/24, confirmed 7/28; built 8/3 in Option C — centered card, always one column across both layout variants, reachable via the scenario explorer "No active request".)_
 - [ ] **"Other" redesign.** Show the team-member-entered "Additional Description" as a read-only label; remove the customer note field and its note-gating. _(Resolved 7/28: the "Other" text is entered by the team member in the request tool and passed through, not user-generated.)_
 - [ ] **Front and back on the photo ID.** Accept a front and a back image, uploaded together against that one document ID. _(Backend confirmed 7/28.)_
 

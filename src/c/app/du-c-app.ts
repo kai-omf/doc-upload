@@ -20,6 +20,7 @@ import { SCENARIOS_C } from "../state/scenarios-c";
 import { storeC, type DocState, type DocStatus } from "../state/store-c";
 import type { RailData } from "@shared/components/du-request-rail";
 import { isDesktop, onBreakpointChange } from "@shared/chrome/responsive";
+import { icon } from "@shared/icons";
 
 function escAttr(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -38,6 +39,9 @@ export class DuCApp extends HTMLElement {
   private cardTops = new Map<string, number>();
   private wasAllUploaded = false;
   private reduceMotion = false;
+  // Layout exploration: `?layout=single` drops the desktop status rail and uses a single 640px
+  // column at all breakpoints (session progress moves to the top, like mobile).
+  private singleColumn = false;
 
   connectedCallback(): void {
     this.replaceInput = document.createElement("input");
@@ -68,6 +72,7 @@ export class DuCApp extends HTMLElement {
     document.body.appendChild(this.dock);
 
     this.reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this.singleColumn = new URLSearchParams(location.search).get("layout") === "single";
     this.attachEvents();
     this.unsub.push(storeC.subscribe(this.onChange));
     this.unsub.push(onBreakpointChange(this.onChange));
@@ -136,6 +141,7 @@ export class DuCApp extends HTMLElement {
   private signature(): string {
     return JSON.stringify([
       isDesktop(),
+      storeC.hasRequest,
       storeC.allUploaded,
       storeC.isUploading,
       storeC.docs.map((d) => d.status),
@@ -294,7 +300,38 @@ export class DuCApp extends HTMLElement {
     return `<oneapp-poc-alert type="info" heading="Upload your documents by ${escAttr(req.dueDateLabel)}" supporting="Add each file below, then upload it — each document is sent to your loan team on its own. Everything's encrypted."></oneapp-poc-alert>`;
   }
 
+  // No active/expired request: the standalone page still loads (it owns its URL), so it shows an
+  // empty state instead of the checklist. Always one column — independent of the layout variant.
+  private renderEmpty(): void {
+    this.lastSig = this.signature();
+    this.renderedStatus.clear();
+    this.innerHTML = "";
+    this.append(this.replaceInput, this.liveRegion);
+    const shell = document.createElement("div");
+    shell.style.display = "contents";
+    shell.innerHTML = `
+      <du-web-nav current="loans" back-label="Back to home page"></du-web-nav>
+      <main class="a-content" aria-label="Upload Documents">
+        <div class="a-page a-page--empty">
+          <h1 class="a-headline headline-page">Upload Documents</h1>
+          <section class="c-empty" aria-label="No documents requested">
+            <span class="c-empty-badge" aria-hidden="true">${icon("documents", 32)}</span>
+            <div class="c-empty-copy">
+              <h2 class="c-empty-title">Nothing to upload right now</h2>
+              <p class="c-empty-body">There's no active document request on your account.</p>
+            </div>
+          </section>
+        </div>
+      </main>
+      <footer class="a-footer" aria-hidden="true"></footer>`;
+    this.append(shell);
+  }
+
   private render(): void {
+    if (!storeC.hasRequest) {
+      this.renderEmpty();
+      return;
+    }
     this.lastSig = this.signature();
     const desktop = isDesktop();
     const total = storeC.getState().request.docCount;
@@ -303,7 +340,10 @@ export class DuCApp extends HTMLElement {
       ? `<div class="c-done"><oneapp-poc-button hierarchy="primary" full label="Back to home page" data-action="exit"></oneapp-poc-button></div>`
       : "";
 
-    const main = desktop
+    // The desktop status rail only appears in the default layout. In single-column mode (and on
+    // mobile), progress moves to a compact bar at the top and the cards carry the per-doc status.
+    const useRail = desktop && !this.singleColumn;
+    const main = useRail
       ? `
         <h1 class="a-headline headline-page">Upload Documents</h1>
         <div class="banner-wrap">${this.bannerHtml()}</div>
@@ -317,6 +357,7 @@ export class DuCApp extends HTMLElement {
         <du-session-progress compact submitted="${storeC.uploadedCount}" total="${total}" verb="uploaded"></du-session-progress>
         <div class="card-stack">${cards}</div>
         ${doneCta}`;
+    const pageClass = this.singleColumn ? "a-page a-page--single" : "a-page";
 
     const changed = new Set<string>();
     for (const d of storeC.docs) {
@@ -332,7 +373,7 @@ export class DuCApp extends HTMLElement {
     shell.style.display = "contents";
     shell.innerHTML = `
       <du-web-nav current="loans" back-label="Back to home page"></du-web-nav>
-      <main class="a-content" aria-label="Upload Documents"><div class="a-page">${main}</div></main>
+      <main class="a-content" aria-label="Upload Documents"><div class="${pageClass}">${main}</div></main>
       <footer class="a-footer" aria-hidden="true"></footer>`;
     this.append(shell);
 
