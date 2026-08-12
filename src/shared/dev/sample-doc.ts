@@ -1,7 +1,9 @@
 // Demo-only: a mock "document" image (data URL) used by seeded scenarios so the file rows and the
 // preview modal have something realistic to show without a real uploaded file. Not used in the
 // normal flow (which holds genuine object URLs from files the user picks).
-import type { FileInfo } from "../../a/state/store-a";
+// Use Option C's FileInfo (a superset that also carries the raw byte size, for running totals).
+// Assignable to Option A/B's FileInfo wherever those scenarios use it.
+import type { FileInfo } from "../../c/state/store-c";
 
 function buildSvg(): string {
   const line = (y: number, w: number, c = "#e8eaec") =>
@@ -29,7 +31,21 @@ function buildSvg(): string {
 /** A data-URL image standing in for an uploaded document (renders in <img> and <iframe>). */
 export const SAMPLE_DOC = `data:image/svg+xml,${encodeURIComponent(buildSvg())}`;
 
+/** Approximate raw bytes from a size label like "179 KB" — good enough for a demo running total. */
+function bytesFromLabel(label: string): number {
+  const m = /^([\d.]+)\s*(B|KB|MB)$/i.exec(label.trim());
+  if (!m) return 0;
+  const n = parseFloat(m[1]);
+  const unit = m[2].toUpperCase();
+  return Math.round(unit === "MB" ? n * 1024 * 1024 : unit === "KB" ? n * 1024 : n);
+}
+
 /** Build a FileInfo for a seeded scenario, pointing at the mock document image. */
-export function sampleFile(name: string, typeLabel: string, sizeLabel: string): FileInfo {
-  return { name, typeLabel, sizeLabel, url: SAMPLE_DOC };
+export function sampleFile(
+  name: string,
+  typeLabel: string,
+  sizeLabel: string,
+  bytes = bytesFromLabel(sizeLabel),
+): FileInfo {
+  return { name, typeLabel, sizeLabel, bytes, url: SAMPLE_DOC };
 }

@@ -69,3 +69,48 @@ du-drop-zone input[type="file"] {
   white-space: nowrap;
   border: 0;
 }
+
+/* Row mode — a slim full-width "Add another file" row that stays a drop target for the next file. */
+du-drop-zone .add-row {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--omf-cx-gap-x-component-default, 8px);
+  width: 100%;
+  padding: 12px var(--omf-cx-padding-surface-base, 16px);
+  background: none;
+  border: 1px dashed var(--omf-cx-core-color-line-moderate, #cbd5e1);
+  border-radius: var(--omf-cx-shape-radius-default, 8px);
+  cursor: pointer;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  text-align: left;
+}
+du-drop-zone .add-row:hover {
+  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
+}
+du-drop-zone .add-row.is-dragover {
+  border-style: solid;
+  border-color: var(--omf-cx-core-color-primary, #0e45e3);
+  background: var(--omf-cx-core-color-surface-info, #f3f7fc);
+}
+du-drop-zone .add-row:focus-visible {
+  outline: 2px solid var(--omf-cx-core-color-primary, #0e45e3);
+  outline-offset: 2px;
+}
+du-drop-zone .ar-plus {
+  display: inline-flex;
+  color: var(--omf-cx-core-color-primary, #0e45e3);
+}
+du-drop-zone .ar-label {
+  flex: 1 0 auto;
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-label-small-1-size, 15px);
+  line-height: 24px;
+  color: var(--omf-cx-core-color-primary, #0e45e3);
+}
+du-drop-zone .ar-optional {
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}

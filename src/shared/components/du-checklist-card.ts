@@ -15,6 +15,7 @@ import "@shared/components/du-file-row";
 import "@shared/components/oneapp-poc-note-input";
 import "@shared/components/oneapp-poc-alert";
 import "@shared/components/oneapp-poc-button";
+import { icon } from "../icons";
 import type { DocStatus } from "./status-meta";
 
 export class DuChecklistCard extends HTMLElement {
@@ -34,15 +35,8 @@ export class DuChecklistCard extends HTMLElement {
     "accept",
     "hint",
     "mode",
-    // Multi-file (front/back) documents — when `sided` is present the body renders two slots.
-    "sided",
-    "front-file-name",
-    "front-file-meta",
-    "front-message",
-    "back-file-name",
-    "back-file-meta",
-    "back-message",
-    "back-optional",
+    // Instant mode (C): a document holds 0..N files. `files` is a JSON array of {id,name,meta}.
+    "files",
   ];
   connectedCallback(): void {
     this.render();
@@ -56,7 +50,8 @@ export class DuChecklistCard extends HTMLElement {
   }
 
   private bodyMarkup(): string {
-    if (this.hasAttribute("sided")) return this.sidedBody();
+    // Instant mode (C) is always multi-file — a document can hold several files (e.g. scanned pages).
+    if (this.getAttribute("mode") === "instant") return this.instantBody();
     const status = this.status;
     const fileName = this.getAttribute("file-name") ?? "";
     const fileMeta = this.getAttribute("file-meta") ?? "";
@@ -135,35 +130,50 @@ export class DuChecklistCard extends HTMLElement {
     }
   }
 
-  // Multi-file (front/back) body — instant mode only. The back reveals only once the front has a
-  // file (sequential single zone), and both sides upload together via the one Upload button.
-  private sidedBody(): string {
+  // Instant (C) multi-file body — one growing, numbered file list per document. A document holds
+  // 0..N files (page order = the numbers); a persistent "Add another file" row is always last and
+  // doubles as the drop target; files are combined in the shown order and can be reordered; one
+  // Upload sends them all together against the document ID.
+  private instantBody(): string {
     const status = this.status;
     const progress = Number(this.getAttribute("progress") ?? "0");
     const accept = this.getAttribute("accept") ?? ".pdf,.jpg,.jpeg,.png";
-    const hint = this.getAttribute("hint") ?? "PDF, JPG, or PNG · up to 10 MB";
+    const hint = this.getAttribute("hint") ?? "PDF, JPG, or PNG · 10 MB each";
     const message = this.getAttribute("message") ?? "";
     const name = this.getAttribute("name") ?? "document";
+    const summary = this.getAttribute("files-summary") ?? "";
 
-    const front = {
-      name: this.getAttribute("front-file-name") ?? "",
-      meta: this.getAttribute("front-file-meta") ?? "",
-      message: this.getAttribute("front-message") ?? "",
-    };
-    const back = {
-      name: this.getAttribute("back-file-name") ?? "",
-      meta: this.getAttribute("back-file-meta") ?? "",
-      message: this.getAttribute("back-message") ?? "",
-    };
-    const backLabel = this.hasAttribute("back-optional") ? "Back (optional)" : "Back";
+    let files: Array<{ id: string; name: string; meta: string }> = [];
+    try {
+      files = JSON.parse(this.getAttribute("files") ?? "[]");
+    } catch {
+      files = [];
+    }
+    const total = files.length;
 
-    const wrap = (side: string, label: string, inner: string) =>
-      `<div class="side" data-side="${side}"><p class="side-label">${label}</p>${inner}</div>`;
-    const zone = `<du-drop-zone accept="${accept}" hint="${hint}"></du-drop-zone>`;
-    const row = (n: string, m: string, actions: string) =>
-      `<du-file-row variant="filled" name="${n}" meta="${m}" actions="${actions}"></du-file-row>`;
-    const sideError = (msg: string) =>
-      `<oneapp-poc-alert type="error" heading="We couldn't add that file" supporting="${msg}"></oneapp-poc-alert>`;
+    const subhead = `<div class="mf-subhead"><span class="mf-subhead-label">Files for this document</span><span class="mf-subhead-summary">${summary}</span></div>`;
+    const actionButtons = (actions: string) => {
+      const a = actions.split(",");
+      const parts: string[] = [];
+      if (a.includes("preview"))
+        parts.push(`<oneapp-poc-button hierarchy="tertiary" size="small" label="Preview" data-action="preview"></oneapp-poc-button>`);
+      if (a.includes("replace"))
+        parts.push(`<oneapp-poc-button hierarchy="tertiary" size="small" label="Replace" data-action="replace"></oneapp-poc-button>`);
+      if (a.includes("remove"))
+        parts.push(`<button type="button" class="mf-remove" data-action="remove" aria-label="Remove file">${icon("trash", 20)}</button>`);
+      return parts.length ? `<div class="mf-actions">${parts.join("")}</div>` : "";
+    };
+    const row = (f: { id: string; name: string; meta: string }, i: number, actions: string, draggable: boolean) =>
+      `<div class="mf-row${draggable ? " is-draggable" : ""}"${draggable ? ' draggable="true"' : ""} data-file-id="${f.id}" data-index="${i}">
+        ${draggable ? `<button type="button" class="mf-handle" aria-label="Reorder ${f.name}, item ${i + 1} of ${total}. Use the up and down arrow keys to move it.">${icon("drag-handle", 20)}</button>` : ""}
+        <span class="mf-num" aria-hidden="true">${i + 1}</span>
+        <div class="mf-text"><p class="mf-name">${f.name}</p><p class="mf-meta">${f.meta}</p></div>
+        ${actionButtons(actions)}
+      </div>`;
+    const rows = (actions: string, draggable: boolean) =>
+      `<div class="mf-list">${files.map((f, i) => row(f, i, actions, draggable)).join("")}</div>`;
+    const addRow = `<du-drop-zone compact multiple accept="${accept}"></du-drop-zone>`;
+    const errorAlert = `<oneapp-poc-alert type="error" heading="We couldn't add that file" supporting="${message}"></oneapp-poc-alert>`;
     const progressMarkup = `
       <div class="submit-progress">
         <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${progress}" aria-label="Uploading ${name}">
@@ -172,68 +182,73 @@ export class DuChecklistCard extends HTMLElement {
         <p class="pct">Uploading… ${progress}%</p>
       </div>`;
 
-    // Terminal / in-flight doc states: show whichever sides hold a file.
     if (status === "uploading") {
-      return (
-        (front.name ? wrap("front", "Front", row(front.name, front.meta, "")) : "") +
-        (back.name ? wrap("back", backLabel, row(back.name, back.meta, "")) : "") +
-        progressMarkup
-      );
+      return subhead + rows("", false) + progressMarkup;
     }
     if (status === "uploaded" || status === "submitted") {
-      return (
-        (front.name ? wrap("front", "Front", row(front.name, front.meta, "preview")) : "") +
-        (back.name ? wrap("back", backLabel, row(back.name, back.meta, "preview")) : "")
-      );
+      return subhead + rows("preview", false);
     }
     if (status === "failed") {
       return (
+        subhead +
         `<oneapp-poc-alert type="error" heading="That didn't go through" supporting="${message}"></oneapp-poc-alert>` +
-        (front.name ? wrap("front", "Front", row(front.name, front.meta, "replace,remove")) : "") +
-        (back.name ? wrap("back", backLabel, row(back.name, back.meta, "replace,remove")) : "") +
+        rows("replace,remove", false) +
         `<div class="failed-actions"><oneapp-poc-button hierarchy="primary" size="small" label="Try again" data-action="retry"></oneapp-poc-button></div>`
       );
     }
 
-    // Gathering (not-started / validation-error / selected): sequential reveal.
-    const frontSlot = front.name
-      ? wrap("front", "Front", row(front.name, front.meta, "replace,remove"))
-      : wrap("front", "Front", (front.message ? sideError(front.message) : "") + zone);
-    // The back slot appears only once the front has a valid file.
-    const backSlot = front.name
-      ? back.name
-        ? wrap("back", backLabel, row(back.name, back.meta, "replace,remove"))
-        : wrap("back", backLabel, (back.message ? sideError(back.message) : "") + zone)
-      : "";
-    // Upload appears once the front is in; enabled only when the doc is ready (required sides filled).
-    const upload = front.name
-      ? `<oneapp-poc-button class="upload-btn" hierarchy="primary" size="default" label="Upload document" data-action="upload"${status === "selected" ? "" : " disabled"}></oneapp-poc-button>`
-      : "";
-    return frontSlot + backSlot + upload;
+    // Gathering (not-started / validation-error / selected).
+    if (total === 0) {
+      return (
+        subhead +
+        `<du-drop-zone multiple accept="${accept}" hint="${hint}"></du-drop-zone>` +
+        (message ? errorAlert : "") +
+        `<p class="mf-hint">One file is usually enough. If your document runs to several pages, add a file for each — you can select them all at once.</p>`
+      );
+    }
+    const upload = `<oneapp-poc-button class="upload-btn" hierarchy="primary" size="default" label="Upload document" data-action="upload"${status === "selected" ? "" : " disabled"}></oneapp-poc-button>`;
+    return (
+      subhead +
+      rows("replace,remove", true) +
+      addRow +
+      (message ? errorAlert : "") +
+      `<p class="mf-hint">Files are combined in the order shown. Drag to reorder.</p>` +
+      upload
+    );
   }
 
   private render(): void {
     const name = this.getAttribute("name") ?? "";
     const description = this.getAttribute("description") ?? "";
     const status = this.status;
+    const instant = this.getAttribute("mode") === "instant";
     const headingId = `card-h-${this.getAttribute("doc-id") ?? name.replace(/\s+/g, "-")}`;
+
+    // Instant mode (C): a document glyph in a badge leads the title (reused from the file-row badge).
+    const headerIcon = instant
+      ? `<span class="card-icon" aria-hidden="true">${icon("page-flip", 20)}</span>`
+      : "";
 
     this.innerHTML = `
       <section class="card" data-status="${status}" aria-labelledby="${headingId}">
-        <div class="header">
-          <div class="title-row">
-            <h2 class="title" id="${headingId}">${name}</h2>
-            <du-status-pill status="${status}"></du-status-pill>
+        <div class="card-head">
+          ${headerIcon}
+          <div class="header">
+            <div class="title-row">
+              <h2 class="title" id="${headingId}">${name}</h2>
+              <du-status-pill status="${status}"></du-status-pill>
+            </div>
+            ${description ? `<p class="desc">${description}</p>` : ""}
           </div>
-          ${description ? `<p class="desc">${description}</p>` : ""}
         </div>
         <div class="body">${this.bodyMarkup()}</div>
       </section>`;
 
-    // Footer action buttons (retry / choose-different) → re-emit as "file-action".
+    // Action buttons → re-emit as "file-action" from the control itself, so the host can resolve
+    // which file row (data-file-id) it came from for per-file actions (replace / remove / preview).
     this.querySelectorAll<HTMLElement>("[data-action]").forEach((el) => {
       el.addEventListener("click", () => {
-        this.dispatchEvent(
+        el.dispatchEvent(
           new CustomEvent("file-action", { detail: el.dataset.action, bubbles: true }),
         );
       });

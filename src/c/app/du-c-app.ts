@@ -17,7 +17,7 @@ import type { DuFilePreview } from "@shared/components/du-file-preview";
 import "@shared/dev/du-scenario-dock";
 import type { DuScenarioDock } from "@shared/dev/du-scenario-dock";
 import { SCENARIOS_C } from "../state/scenarios-c";
-import { storeC, type DocState, type DocSide, type DocStatus } from "../state/store-c";
+import { storeC, type DocState, type DocStatus } from "../state/store-c";
 import type { RailData } from "@shared/components/du-request-rail";
 import { isDesktop, onBreakpointChange } from "@shared/chrome/responsive";
 import { icon } from "@shared/icons";
@@ -31,7 +31,10 @@ export class DuCApp extends HTMLElement {
   private lastSig = "";
   private replaceInput!: HTMLInputElement;
   private replaceTargetId: string | null = null;
-  private replaceTargetSide: string | null = null;
+  private replaceTargetFileId: string | null = null;
+  private draggingFileId: string | null = null;
+  // After a reorder re-renders the list, return focus to the moved file's drag handle.
+  private pendingFocusFileId: string | null = null;
   private liveRegion!: HTMLElement;
   private preview!: DuFilePreview;
   private dock!: DuScenarioDock;
@@ -53,9 +56,8 @@ export class DuCApp extends HTMLElement {
     this.replaceInput.setAttribute("aria-hidden", "true");
     this.replaceInput.addEventListener("change", () => {
       const file = this.replaceInput.files?.[0];
-      if (file && this.replaceTargetId) {
-        if (this.replaceTargetSide) storeC.replaceSide(this.replaceTargetId, this.replaceTargetSide, file);
-        else storeC.replaceFile(this.replaceTargetId, file);
+      if (file && this.replaceTargetId && this.replaceTargetFileId) {
+        storeC.replaceFile(this.replaceTargetId, this.replaceTargetFileId, file);
       }
       this.replaceInput.value = "";
     });
@@ -148,9 +150,14 @@ export class DuCApp extends HTMLElement {
       storeC.hasRequest,
       storeC.allUploaded,
       storeC.isUploading,
-      // Per-doc status, plus each side's filled/error state — a sided doc's body changes (front added,
-      // back revealed) even while the doc-level status stays "not-started", so track the sides too.
-      storeC.docs.map((d) => [d.status, (d.sides ?? []).map((s) => [!!s.file, !!s.message])]),
+      // Per-doc status, message, and the file list (id + name + size). Adding/removing/replacing a file
+      // changes the body even while the doc-level status stays "not-started", so track the files too.
+      storeC.docs.map((d) => [
+        d.id,
+        d.status,
+        d.message ?? "",
+        d.files.map((f) => `${f.id}:${f.info.name}:${f.info.sizeLabel}`),
+      ]),
     ]);
   }
 
@@ -199,31 +206,32 @@ export class DuCApp extends HTMLElement {
     const card = (e.target as HTMLElement).closest("du-checklist-card") as HTMLElement | null;
     return card?.getAttribute("doc-id") ?? null;
   }
-  // Which side (front/back) an event came from, for multi-file documents — null for single-file docs.
-  private sideOf(e: Event): string | null {
-    return (e.target as HTMLElement).closest("[data-side]")?.getAttribute("data-side") ?? null;
+  // Which staged file an event came from (row-level actions), or null for the doc-level add zone.
+  private fileIdOf(e: Event): string | null {
+    return (e.target as HTMLElement).closest("[data-file-id]")?.getAttribute("data-file-id") ?? null;
   }
   private attachEvents(): void {
     this.addEventListener("file-chosen", (e) => {
       const id = this.cardIdOf(e);
-      if (!id) return;
-      const side = this.sideOf(e);
-      const file = (e as CustomEvent<File>).detail;
-      if (side) storeC.selectSide(id, side, file);
-      else storeC.selectFile(id, file);
+      if (id) storeC.addFile(id, (e as CustomEvent<File>).detail);
     });
+    // Multi-select: several files picked or dropped at once → append them all (in page order).
+    this.addEventListener("files-chosen", (e) => {
+      const id = this.cardIdOf(e);
+      if (id) storeC.addFiles(id, (e as CustomEvent<File[]>).detail);
+    });
+    this.attachReorder();
     this.addEventListener("file-action", (e) => {
       const id = this.cardIdOf(e);
       if (!id) return;
       const action = (e as CustomEvent<string>).detail;
-      const side = this.sideOf(e);
+      const fileId = this.fileIdOf(e);
       if (action === "upload") storeC.upload(id);
       else if (action === "retry") storeC.retry(id);
-      else if (action === "remove") side ? storeC.removeSide(id, side) : storeC.removeFile(id);
-      else if (action === "replace") this.openReplacePicker(id, side);
-      else if (action === "preview") {
-        const doc = storeC.getDoc(id);
-        const file = side ? doc?.sides?.find((s) => s.id === side)?.file : doc?.file;
+      else if (action === "remove" && fileId) storeC.removeFile(id, fileId);
+      else if (action === "replace" && fileId) this.openReplacePicker(id, fileId);
+      else if (action === "preview" && fileId) {
+        const file = storeC.getDoc(id)?.files.find((f) => f.id === fileId)?.info;
         if (file) this.preview.open({ url: file.url, name: file.name, type: file.typeLabel });
       }
     });
@@ -236,12 +244,83 @@ export class DuCApp extends HTMLElement {
     });
   }
 
+  // ---- Reorder: drag-and-drop plus keyboard (arrow keys on the handle), both accessible. ----
+  private attachReorder(): void {
+    // Keyboard: ArrowUp/ArrowDown on a file's handle moves it one position and keeps focus on it.
+    this.addEventListener("keydown", (e) => {
+      const handle = (e.target as HTMLElement).closest(".mf-handle");
+      if (!handle || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+      const id = this.cardIdOf(e);
+      const fileId = this.fileIdOf(e);
+      const doc = id ? storeC.getDoc(id) : undefined;
+      if (!id || !fileId || !doc) return;
+      const from = doc.files.findIndex((f) => f.id === fileId);
+      const to = e.key === "ArrowUp" ? from - 1 : from + 1;
+      if (from < 0 || to < 0 || to >= doc.files.length) return;
+      e.preventDefault();
+      this.pendingFocusFileId = fileId;
+      storeC.moveFile(id, fileId, to);
+    });
+    this.addEventListener("dragstart", (e) => {
+      const rowEl = (e.target as HTMLElement).closest(".mf-row.is-draggable") as HTMLElement | null;
+      if (!rowEl) return;
+      this.draggingFileId = rowEl.getAttribute("data-file-id");
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", this.draggingFileId ?? "");
+      }
+      rowEl.classList.add("is-dragging");
+    });
+    this.addEventListener("dragover", (e) => {
+      if (!this.draggingFileId) return; // internal reorder only (file drops are handled by the zone)
+      const rowEl = (e.target as HTMLElement).closest(".mf-row") as HTMLElement | null;
+      if (!rowEl) return;
+      e.preventDefault();
+      const rect = rowEl.getBoundingClientRect();
+      const after = (e as DragEvent).clientY > rect.top + rect.height / 2;
+      this.clearDropIndicators();
+      rowEl.classList.add(after ? "drop-after" : "drop-before");
+    });
+    this.addEventListener("drop", (e) => {
+      if (!this.draggingFileId) return;
+      const id = this.cardIdOf(e);
+      const doc = id ? storeC.getDoc(id) : undefined;
+      const dragged = this.draggingFileId;
+      this.clearDropIndicators();
+      this.querySelectorAll(".is-dragging").forEach((el) => el.classList.remove("is-dragging"));
+      this.draggingFileId = null;
+      if (!id || !doc) return;
+      e.preventDefault();
+      const rowEl = (e.target as HTMLElement).closest(".mf-row") as HTMLElement | null;
+      let beforeFileId: string | null = null; // default: dropped past the list → move to the end
+      if (rowEl) {
+        const targetId = rowEl.getAttribute("data-file-id");
+        const rect = rowEl.getBoundingClientRect();
+        const after = (e as DragEvent).clientY > rect.top + rect.height / 2;
+        const i = doc.files.findIndex((f) => f.id === targetId);
+        beforeFileId = after ? (doc.files[i + 1]?.id ?? null) : (targetId ?? null);
+      }
+      this.pendingFocusFileId = dragged;
+      storeC.reorderFile(id, dragged, beforeFileId);
+    });
+    this.addEventListener("dragend", () => {
+      this.clearDropIndicators();
+      this.querySelectorAll(".is-dragging").forEach((el) => el.classList.remove("is-dragging"));
+      this.draggingFileId = null;
+    });
+  }
+  private clearDropIndicators(): void {
+    this.querySelectorAll(".drop-before, .drop-after").forEach((el) =>
+      el.classList.remove("drop-before", "drop-after"),
+    );
+  }
+
   private goHome(): void {
     window.location.assign(import.meta.env.BASE_URL);
   }
-  private openReplacePicker(id: string, side: string | null = null): void {
+  private openReplacePicker(id: string, fileId: string): void {
     this.replaceTargetId = id;
-    this.replaceTargetSide = side;
+    this.replaceTargetFileId = fileId;
     this.replaceInput.click();
   }
 
@@ -265,38 +344,19 @@ export class DuCApp extends HTMLElement {
 
   // ---- Render ----
   private cardHtml(doc: DocState): string {
-    if (doc.sides) return this.sidedCardHtml(doc);
-    const meta = doc.file ? `${doc.file.typeLabel} · ${doc.file.sizeLabel}` : "";
+    // Phase one: no description; a document holds 0..N files passed as a JSON `files` attribute.
+    const files = doc.files.map((f) => ({
+      id: f.id,
+      name: f.info.name,
+      meta: `${f.info.typeLabel} · ${f.info.sizeLabel}`,
+    }));
     return `<du-checklist-card
       mode="instant"
       doc-id="${doc.id}"
       name="${escAttr(doc.name)}"
-      description="${escAttr(doc.description)}"
       status="${doc.status}"
-      ${doc.isOther ? "is-other" : ""}
-      file-name="${escAttr(doc.file?.name ?? "")}"
-      file-meta="${escAttr(meta)}"
-      message="${escAttr(doc.message ?? "")}"
-      progress="${doc.progress ?? 0}"></du-checklist-card>`;
-  }
-  private sidedCardHtml(doc: DocState): string {
-    const sideAttrs = (prefix: string, side: DocSide | undefined): string => {
-      if (!side) return "";
-      const meta = side.file ? `${side.file.typeLabel} · ${side.file.sizeLabel}` : "";
-      return `${prefix}-file-name="${escAttr(side.file?.name ?? "")}" ${prefix}-file-meta="${escAttr(meta)}" ${prefix}-message="${escAttr(side.message ?? "")}"`;
-    };
-    const front = doc.sides?.find((s) => s.id === "front");
-    const back = doc.sides?.find((s) => s.id === "back");
-    return `<du-checklist-card
-      mode="instant"
-      sided
-      doc-id="${doc.id}"
-      name="${escAttr(doc.name)}"
-      description="${escAttr(doc.description)}"
-      status="${doc.status}"
-      ${back && !back.required ? "back-optional" : ""}
-      ${sideAttrs("front", front)}
-      ${sideAttrs("back", back)}
+      files="${escAttr(JSON.stringify(files))}"
+      files-summary="${escAttr(storeC.filesSummary(doc))}"
       message="${escAttr(doc.message ?? "")}"
       progress="${doc.progress ?? 0}"></du-checklist-card>`;
   }
@@ -412,6 +472,15 @@ export class DuCApp extends HTMLElement {
         heading.setAttribute("tabindex", "-1");
         heading.focus();
       }
+    }
+
+    // After a reorder, return focus to the moved file's drag handle so keyboard users keep their place.
+    if (this.pendingFocusFileId) {
+      const handle = this.querySelector<HTMLElement>(
+        `.mf-row[data-file-id="${this.pendingFocusFileId}"] .mf-handle`,
+      );
+      this.pendingFocusFileId = null;
+      handle?.focus();
     }
   }
 }

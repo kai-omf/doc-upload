@@ -17,8 +17,15 @@ du-checklist-card .card[data-status="failed"] {
   box-shadow: 0 0 0 1px var(--omf-cx-core-color-line-negative, #ffc8c2);
 }
 
-/* Header — title + status pill, then description */
+/* Header — an optional leading icon (instant mode) beside the title/pill/description block. */
+du-checklist-card .card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--omf-cx-gap-tile-small, 12px);
+}
 du-checklist-card .header {
+  flex: 1 1 auto;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--omf-cx-gap-group-small, 4px);
@@ -27,6 +34,18 @@ du-checklist-card .title-row {
   display: flex;
   gap: var(--omf-cx-gap-row-default, 16px);
   align-items: center;
+}
+/* Instant-mode header icon — document glyph in a neutral badge on the white card. */
+du-checklist-card .card-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
 }
 du-checklist-card .title {
   flex: 1 0 0;
@@ -51,19 +70,134 @@ du-checklist-card .desc {
   color: var(--omf-cx-core-color-body-moderate, #62738c);
 }
 
-/* Multi-file (front/back) slots — a labelled sub-section per side within the one card. */
-du-checklist-card .side {
+/* ---- Multi-file (instant) growing list ---- */
+du-checklist-card .mf-subhead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--omf-cx-gap-row-default, 16px);
+}
+du-checklist-card .mf-subhead-label {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-body-supporting-size, 15px);
+  line-height: var(--omf-cx-font-body-supporting-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+du-checklist-card .mf-subhead-summary {
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+  white-space: nowrap;
+}
+du-checklist-card .mf-list {
   display: flex;
   flex-direction: column;
   gap: var(--omf-cx-gap-row-small, 8px);
 }
-du-checklist-card .side-label {
+du-checklist-card .mf-row {
+  display: flex;
+  align-items: center;
+  gap: var(--omf-cx-gap-x-component-default, 8px);
+  padding: 12px var(--omf-cx-padding-surface-base, 16px);
+  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
+  border: 1px solid transparent;
+  border-radius: var(--omf-cx-shape-radius-default, 8px);
+}
+du-checklist-card .mf-row.is-dragging {
+  opacity: 0.4;
+}
+du-checklist-card .mf-row.drop-before {
+  box-shadow: inset 0 2px 0 0 var(--omf-cx-core-color-primary, #0e45e3);
+}
+du-checklist-card .mf-row.drop-after {
+  box-shadow: inset 0 -2px 0 0 var(--omf-cx-core-color-primary, #0e45e3);
+}
+du-checklist-card .mf-handle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  margin-left: -4px;
+  background: none;
+  border: 0;
+  border-radius: var(--omf-cx-shape-radius-default, 8px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+  cursor: grab;
+}
+du-checklist-card .mf-handle:focus-visible {
+  outline: 2px solid var(--omf-cx-core-color-primary, #0e45e3);
+  outline-offset: 1px;
+}
+du-checklist-card .mf-num {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--omf-cx-shape-radius-full, 999px);
+  background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-medium, 500);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: 1;
+  color: var(--omf-cx-core-color-primary, #0e45e3);
+}
+du-checklist-card .mf-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--omf-cx-gap-group-small, 4px);
+}
+du-checklist-card .mf-name {
   margin: 0;
   font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
   font-weight: var(--omf-cx-font-weight-medium, 500);
   font-size: var(--omf-cx-font-body-supporting-size, 15px);
   line-height: var(--omf-cx-font-body-supporting-line-height, 20px);
   color: var(--omf-cx-core-color-body-emphasis, #051958);
+  word-break: break-word;
+}
+du-checklist-card .mf-meta {
+  margin: 0;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+}
+du-checklist-card .mf-actions {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--omf-cx-gap-x-component-default, 8px);
+}
+du-checklist-card .mf-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: none;
+  border: 0;
+  border-radius: var(--omf-cx-shape-radius-default, 8px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
+  cursor: pointer;
+}
+du-checklist-card .mf-remove:hover {
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
+}
+du-checklist-card .mf-hint {
+  margin: 0;
+  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
+  font-weight: var(--omf-cx-font-weight-regular, 400);
+  font-size: var(--omf-cx-font-body-caption-size, 14px);
+  line-height: var(--omf-cx-font-body-caption-line-height, 20px);
+  color: var(--omf-cx-core-color-body-moderate, #62738c);
 }
 
 /* Body — stacked primitives per status. Scoped to the card's own direct child so it never leaks
