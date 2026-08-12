@@ -31,7 +31,13 @@ export class DuHome extends HTMLElement {
             <a class="flow-card" href="${BASE}c/">
               <span class="flow-eyebrow">Direction C</span>
               <span class="flow-name">Instant Upload</span>
-              <span class="flow-desc">Every document on one page — each file uploads the moment you add it, no submit step.</span>
+              <span class="flow-desc">Every document on one page — add one or more files per document, then upload each on its own.</span>
+              <span class="flow-go">Open ${icon("chevron-right", 18)}</span>
+            </a>
+            <a class="flow-card flow-card--archive" href="${BASE}c-v1/c/">
+              <span class="flow-eyebrow">Direction C · Previous version</span>
+              <span class="flow-name">Instant Upload (as reviewed)</span>
+              <span class="flow-desc">The earlier version shared with stakeholders — one file per document, with the front/back photo ID. Kept for reference.</span>
               <span class="flow-go">Open ${icon("chevron-right", 18)}</span>
             </a>
           </div>

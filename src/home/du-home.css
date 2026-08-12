@@ -48,6 +48,11 @@ du-home .flow-card:hover {
   box-shadow: 0 8px 24px rgba(5, 25, 88, 0.09);
   border-color: var(--omf-cx-core-color-line-moderate, #cbd5e1);
 }
+/* Archived reference version — visually secondary to the live directions. */
+du-home .flow-card--archive {
+  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
+  border-style: dashed;
+}
 du-home .flow-eyebrow {
   font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
   font-weight: var(--omf-cx-font-weight-bold, 700);
