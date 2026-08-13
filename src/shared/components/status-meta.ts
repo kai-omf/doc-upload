@@ -32,13 +32,15 @@ export const STATUS_META: Record<DocStatus, StatusMeta> = {
   "not-started": { glyph: "dashed-circle", label: "Not started", tone: "neutral" },
   ready: { glyph: "check-dashed-circle", label: "Ready", tone: "info" },
   selected: { glyph: "check-dashed-circle", label: "Ready", tone: "info" },
-  "validation-error": { glyph: "warning-circle", label: "Needs attention", tone: "caution" },
-  "note-required": { glyph: "warning-circle", label: "Needs attention", tone: "caution" },
+  // Caution "Needs attention" states use the triangle; the negative "Failed" state uses the circular
+  // exclamation, to stay consistent with the design-system alert component's error/negative icon.
+  "validation-error": { glyph: "warning-triangle", label: "Needs attention", tone: "caution" },
+  "note-required": { glyph: "warning-triangle", label: "Needs attention", tone: "caution" },
   submitting: { glyph: "upload", label: "Submitting", tone: "info" },
   uploading: { glyph: "upload", label: "Uploading", tone: "info" },
   submitted: { glyph: "check-circle", label: "Submitted", tone: "positive" },
   uploaded: { glyph: "check-circle", label: "Uploaded", tone: "positive" },
-  failed: { glyph: "warning-triangle", label: "Failed", tone: "negative" },
+  failed: { glyph: "warning-circle", label: "Failed", tone: "negative" },
 };
 
 // The body text colour for each tone (icons + right-aligned rail labels).
