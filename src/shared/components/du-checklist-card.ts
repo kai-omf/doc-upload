@@ -203,7 +203,7 @@ export class DuChecklistCard extends HTMLElement {
         subhead +
         `<du-drop-zone multiple accept="${accept}" hint="${hint}"></du-drop-zone>` +
         (message ? errorAlert : "") +
-        `<p class="mf-hint">One file is usually enough. If your document runs to several pages, add a file for each — you can select them all at once.</p>`
+        `<p class="mf-hint">One file is best, even a multi-page one. Add more only if your document is split into separate files or photos.</p>`
       );
     }
     const upload = `<oneapp-poc-button class="upload-btn" hierarchy="primary" size="default" label="Upload document" data-action="upload"${status === "selected" ? "" : " disabled"}></oneapp-poc-button>`;
