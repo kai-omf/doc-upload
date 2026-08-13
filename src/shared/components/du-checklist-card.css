@@ -17,15 +17,8 @@ du-checklist-card .card[data-status="failed"] {
   box-shadow: 0 0 0 1px var(--omf-cx-core-color-line-negative, #ffc8c2);
 }
 
-/* Header — an optional leading icon (instant mode) beside the title/pill/description block. */
-du-checklist-card .card-head {
-  display: flex;
-  align-items: center;
-  gap: var(--omf-cx-gap-tile-small, 12px);
-}
+/* Header — title + status pill, then description */
 du-checklist-card .header {
-  flex: 1 1 auto;
-  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--omf-cx-gap-group-small, 4px);
@@ -34,18 +27,6 @@ du-checklist-card .title-row {
   display: flex;
   gap: var(--omf-cx-gap-row-default, 16px);
   align-items: center;
-}
-/* Instant-mode header icon — document glyph in a neutral badge on the white card. */
-du-checklist-card .card-icon {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--omf-cx-shape-radius-full, 999px);
-  background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
-  color: var(--omf-cx-core-color-body-emphasis, #051958);
 }
 du-checklist-card .title {
   flex: 1 0 0;
@@ -132,20 +113,17 @@ du-checklist-card .mf-handle:focus-visible {
   outline: 2px solid var(--omf-cx-core-color-primary, #0e45e3);
   outline-offset: 1px;
 }
-du-checklist-card .mf-num {
+/* File-type badge in the leading slot — document for PDFs, photo for images. */
+du-checklist-card .mf-type {
   flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--omf-cx-shape-radius-full, 999px);
   background: var(--omf-cx-core-color-surface-info-layer-1, #e7f0ff);
-  font-family: var(--omf-cx-font-family-primary, "Merchant", sans-serif);
-  font-weight: var(--omf-cx-font-weight-medium, 500);
-  font-size: var(--omf-cx-font-body-caption-size, 14px);
-  line-height: 1;
-  color: var(--omf-cx-core-color-primary, #0e45e3);
+  color: var(--omf-cx-core-color-body-emphasis, #051958);
 }
 du-checklist-card .mf-text {
   flex: 1 1 auto;

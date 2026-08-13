@@ -349,6 +349,7 @@ export class DuCApp extends HTMLElement {
       id: f.id,
       name: f.info.name,
       meta: `${f.info.typeLabel} · ${f.info.sizeLabel}`,
+      type: f.info.typeLabel,
     }));
     return `<du-checklist-card
       mode="instant"

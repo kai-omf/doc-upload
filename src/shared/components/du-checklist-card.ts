@@ -143,13 +143,16 @@ export class DuChecklistCard extends HTMLElement {
     const name = this.getAttribute("name") ?? "document";
     const summary = this.getAttribute("files-summary") ?? "";
 
-    let files: Array<{ id: string; name: string; meta: string }> = [];
+    let files: Array<{ id: string; name: string; meta: string; type?: string }> = [];
     try {
       files = JSON.parse(this.getAttribute("files") ?? "[]");
     } catch {
       files = [];
     }
     const total = files.length;
+    // File-type glyph in the leading slot — a document for PDFs, a photo for images.
+    const typeIcon = (type?: string) =>
+      /(jpe?g|png|gif|webp|image)/i.test(type ?? "") ? "image" : "page";
 
     const subhead = `<div class="mf-subhead"><span class="mf-subhead-label">Files for this document</span><span class="mf-subhead-summary">${summary}</span></div>`;
     const actionButtons = (actions: string) => {
@@ -163,10 +166,10 @@ export class DuChecklistCard extends HTMLElement {
         parts.push(`<button type="button" class="mf-remove" data-action="remove" aria-label="Remove file">${icon("trash", 20)}</button>`);
       return parts.length ? `<div class="mf-actions">${parts.join("")}</div>` : "";
     };
-    const row = (f: { id: string; name: string; meta: string }, i: number, actions: string, draggable: boolean) =>
+    const row = (f: { id: string; name: string; meta: string; type?: string }, i: number, actions: string, draggable: boolean) =>
       `<div class="mf-row${draggable ? " is-draggable" : ""}"${draggable ? ' draggable="true"' : ""} data-file-id="${f.id}" data-index="${i}">
         ${draggable ? `<button type="button" class="mf-handle" aria-label="Reorder ${f.name}, item ${i + 1} of ${total}. Use the up and down arrow keys to move it.">${icon("drag-handle", 20)}</button>` : ""}
-        <span class="mf-num" aria-hidden="true">${i + 1}</span>
+        <span class="mf-type" aria-hidden="true">${icon(typeIcon(f.type), 20)}</span>
         <div class="mf-text"><p class="mf-name">${f.name}</p><p class="mf-meta">${f.meta}</p></div>
         ${actionButtons(actions)}
       </div>`;
@@ -197,22 +200,26 @@ export class DuChecklistCard extends HTMLElement {
       );
     }
 
-    // Gathering (not-started / validation-error / selected).
+    // Gathering (not-started / validation-error / selected). With no files yet, the drop zone is the
+    // whole story — skip the subheader and the "add more" guidance until a file is added.
     if (total === 0) {
       return (
-        subhead +
         `<du-drop-zone multiple accept="${accept}" hint="${hint}"></du-drop-zone>` +
-        (message ? errorAlert : "") +
-        `<p class="mf-hint">One file is best, even a multi-page one. Add more only if your document is split into separate files or photos.</p>`
+        (message ? errorAlert : "")
       );
     }
     const upload = `<oneapp-poc-button class="upload-btn" hierarchy="primary" size="default" label="Upload document" data-action="upload"${status === "selected" ? "" : " disabled"}></oneapp-poc-button>`;
+    // Reorder guidance only makes sense with 2+ files; the "add more" guidance sits with the add row.
+    const reorderHint =
+      total >= 2 ? `<p class="mf-hint">Files are combined in the order shown. Drag to reorder.</p>` : "";
+    const addHint = `<p class="mf-hint">Add more files only if your document is split into separate files or photos.</p>`;
     return (
       subhead +
       rows("replace,remove", true) +
+      reorderHint +
       addRow +
       (message ? errorAlert : "") +
-      `<p class="mf-hint">Files are combined in the order shown. Drag to reorder.</p>` +
+      addHint +
       upload
     );
   }
@@ -221,25 +228,16 @@ export class DuChecklistCard extends HTMLElement {
     const name = this.getAttribute("name") ?? "";
     const description = this.getAttribute("description") ?? "";
     const status = this.status;
-    const instant = this.getAttribute("mode") === "instant";
     const headingId = `card-h-${this.getAttribute("doc-id") ?? name.replace(/\s+/g, "-")}`;
-
-    // Instant mode (C): a document glyph in a badge leads the title (reused from the file-row badge).
-    const headerIcon = instant
-      ? `<span class="card-icon" aria-hidden="true">${icon("page-flip", 20)}</span>`
-      : "";
 
     this.innerHTML = `
       <section class="card" data-status="${status}" aria-labelledby="${headingId}">
-        <div class="card-head">
-          ${headerIcon}
-          <div class="header">
-            <div class="title-row">
-              <h2 class="title" id="${headingId}">${name}</h2>
-              <du-status-pill status="${status}"></du-status-pill>
-            </div>
-            ${description ? `<p class="desc">${description}</p>` : ""}
+        <div class="header">
+          <div class="title-row">
+            <h2 class="title" id="${headingId}">${name}</h2>
+            <du-status-pill status="${status}"></du-status-pill>
           </div>
+          ${description ? `<p class="desc">${description}</p>` : ""}
         </div>
         <div class="body">${this.bodyMarkup()}</div>
       </section>`;
