@@ -166,15 +166,14 @@ export class DuChecklistCard extends HTMLElement {
         parts.push(`<button type="button" class="mf-remove" data-action="remove" aria-label="Remove file">${icon("trash", 20)}</button>`);
       return parts.length ? `<div class="mf-actions">${parts.join("")}</div>` : "";
     };
-    const row = (f: { id: string; name: string; meta: string; type?: string }, i: number, actions: string, draggable: boolean) =>
-      `<div class="mf-row${draggable ? " is-draggable" : ""}"${draggable ? ' draggable="true"' : ""} data-file-id="${f.id}" data-index="${i}">
-        ${draggable ? `<button type="button" class="mf-handle" aria-label="Reorder ${f.name}, item ${i + 1} of ${total}. Use the up and down arrow keys to move it.">${icon("drag-handle", 20)}</button>` : ""}
+    const row = (f: { id: string; name: string; meta: string; type?: string }, actions: string) =>
+      `<div class="mf-row" data-file-id="${f.id}">
         <span class="mf-type" aria-hidden="true">${icon(typeIcon(f.type), 20)}</span>
         <div class="mf-text"><p class="mf-name">${f.name}</p><p class="mf-meta">${f.meta}</p></div>
         ${actionButtons(actions)}
       </div>`;
-    const rows = (actions: string, draggable: boolean) =>
-      `<div class="mf-list">${files.map((f, i) => row(f, i, actions, draggable)).join("")}</div>`;
+    const rows = (actions: string) =>
+      `<div class="mf-list">${files.map((f) => row(f, actions)).join("")}</div>`;
     const addRow = `<du-drop-zone compact multiple accept="${accept}"></du-drop-zone>`;
     const errorAlert = `<oneapp-poc-alert type="error" heading="We couldn't add that file" supporting="${message}"></oneapp-poc-alert>`;
     const progressMarkup = `
@@ -186,16 +185,16 @@ export class DuChecklistCard extends HTMLElement {
       </div>`;
 
     if (status === "uploading") {
-      return subhead + rows("", false) + progressMarkup;
+      return subhead + rows("") + progressMarkup;
     }
     if (status === "uploaded" || status === "submitted") {
-      return subhead + rows("preview", false);
+      return subhead + rows("preview");
     }
     if (status === "failed") {
       return (
         subhead +
         `<oneapp-poc-alert type="error" heading="That didn't go through" supporting="${message}"></oneapp-poc-alert>` +
-        rows("replace,remove", false) +
+        rows("replace,remove") +
         `<div class="failed-actions"><oneapp-poc-button hierarchy="primary" size="small" label="Try again" data-action="retry"></oneapp-poc-button></div>`
       );
     }
@@ -209,14 +208,10 @@ export class DuChecklistCard extends HTMLElement {
       );
     }
     const upload = `<oneapp-poc-button class="upload-btn" hierarchy="primary" size="default" label="Upload document" data-action="upload"${status === "selected" ? "" : " disabled"}></oneapp-poc-button>`;
-    // Reorder guidance only makes sense with 2+ files; the "add more" guidance sits with the add row.
-    const reorderHint =
-      total >= 2 ? `<p class="mf-hint">Files are combined in the order shown. Drag to reorder.</p>` : "";
     const addHint = `<p class="mf-hint">Add more files only if your document is split into separate files or photos.</p>`;
     return (
       subhead +
-      rows("replace,remove", true) +
-      reorderHint +
+      rows("replace,remove") +
       addRow +
       (message ? errorAlert : "") +
       addHint +

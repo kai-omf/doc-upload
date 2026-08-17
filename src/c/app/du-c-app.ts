@@ -32,9 +32,6 @@ export class DuCApp extends HTMLElement {
   private replaceInput!: HTMLInputElement;
   private replaceTargetId: string | null = null;
   private replaceTargetFileId: string | null = null;
-  private draggingFileId: string | null = null;
-  // After a reorder re-renders the list, return focus to the moved file's drag handle.
-  private pendingFocusFileId: string | null = null;
   private liveRegion!: HTMLElement;
   private preview!: DuFilePreview;
   private dock!: DuScenarioDock;
@@ -220,7 +217,6 @@ export class DuCApp extends HTMLElement {
       const id = this.cardIdOf(e);
       if (id) storeC.addFiles(id, (e as CustomEvent<File[]>).detail);
     });
-    this.attachReorder();
     this.addEventListener("file-action", (e) => {
       const id = this.cardIdOf(e);
       if (!id) return;
@@ -242,77 +238,6 @@ export class DuCApp extends HTMLElement {
       const el = (e.target as HTMLElement).closest('[data-action="exit"]');
       if (el && !el.closest("du-request-rail")) this.goHome();
     });
-  }
-
-  // ---- Reorder: drag-and-drop plus keyboard (arrow keys on the handle), both accessible. ----
-  private attachReorder(): void {
-    // Keyboard: ArrowUp/ArrowDown on a file's handle moves it one position and keeps focus on it.
-    this.addEventListener("keydown", (e) => {
-      const handle = (e.target as HTMLElement).closest(".mf-handle");
-      if (!handle || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
-      const id = this.cardIdOf(e);
-      const fileId = this.fileIdOf(e);
-      const doc = id ? storeC.getDoc(id) : undefined;
-      if (!id || !fileId || !doc) return;
-      const from = doc.files.findIndex((f) => f.id === fileId);
-      const to = e.key === "ArrowUp" ? from - 1 : from + 1;
-      if (from < 0 || to < 0 || to >= doc.files.length) return;
-      e.preventDefault();
-      this.pendingFocusFileId = fileId;
-      storeC.moveFile(id, fileId, to);
-    });
-    this.addEventListener("dragstart", (e) => {
-      const rowEl = (e.target as HTMLElement).closest(".mf-row.is-draggable") as HTMLElement | null;
-      if (!rowEl) return;
-      this.draggingFileId = rowEl.getAttribute("data-file-id");
-      if (e.dataTransfer) {
-        e.dataTransfer.effectAllowed = "move";
-        e.dataTransfer.setData("text/plain", this.draggingFileId ?? "");
-      }
-      rowEl.classList.add("is-dragging");
-    });
-    this.addEventListener("dragover", (e) => {
-      if (!this.draggingFileId) return; // internal reorder only (file drops are handled by the zone)
-      const rowEl = (e.target as HTMLElement).closest(".mf-row") as HTMLElement | null;
-      if (!rowEl) return;
-      e.preventDefault();
-      const rect = rowEl.getBoundingClientRect();
-      const after = (e as DragEvent).clientY > rect.top + rect.height / 2;
-      this.clearDropIndicators();
-      rowEl.classList.add(after ? "drop-after" : "drop-before");
-    });
-    this.addEventListener("drop", (e) => {
-      if (!this.draggingFileId) return;
-      const id = this.cardIdOf(e);
-      const doc = id ? storeC.getDoc(id) : undefined;
-      const dragged = this.draggingFileId;
-      this.clearDropIndicators();
-      this.querySelectorAll(".is-dragging").forEach((el) => el.classList.remove("is-dragging"));
-      this.draggingFileId = null;
-      if (!id || !doc) return;
-      e.preventDefault();
-      const rowEl = (e.target as HTMLElement).closest(".mf-row") as HTMLElement | null;
-      let beforeFileId: string | null = null; // default: dropped past the list → move to the end
-      if (rowEl) {
-        const targetId = rowEl.getAttribute("data-file-id");
-        const rect = rowEl.getBoundingClientRect();
-        const after = (e as DragEvent).clientY > rect.top + rect.height / 2;
-        const i = doc.files.findIndex((f) => f.id === targetId);
-        beforeFileId = after ? (doc.files[i + 1]?.id ?? null) : (targetId ?? null);
-      }
-      this.pendingFocusFileId = dragged;
-      storeC.reorderFile(id, dragged, beforeFileId);
-    });
-    this.addEventListener("dragend", () => {
-      this.clearDropIndicators();
-      this.querySelectorAll(".is-dragging").forEach((el) => el.classList.remove("is-dragging"));
-      this.draggingFileId = null;
-    });
-  }
-  private clearDropIndicators(): void {
-    this.querySelectorAll(".drop-before, .drop-after").forEach((el) =>
-      el.classList.remove("drop-before", "drop-after"),
-    );
   }
 
   private goHome(): void {
@@ -473,15 +398,6 @@ export class DuCApp extends HTMLElement {
         heading.setAttribute("tabindex", "-1");
         heading.focus();
       }
-    }
-
-    // After a reorder, return focus to the moved file's drag handle so keyboard users keep their place.
-    if (this.pendingFocusFileId) {
-      const handle = this.querySelector<HTMLElement>(
-        `.mf-row[data-file-id="${this.pendingFocusFileId}"] .mf-handle`,
-      );
-      this.pendingFocusFileId = null;
-      handle?.focus();
     }
   }
 }

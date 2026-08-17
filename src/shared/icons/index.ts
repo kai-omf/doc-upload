@@ -21,7 +21,6 @@ export type IconName =
   | "info-circle"
   | "menu"
   | "plus"
-  | "drag-handle"
   | "close"
   | "arrow-left"
   | "help"
@@ -67,8 +66,6 @@ const P: Record<IconName, string> = {
     '<path d="M3 5H21M3 12H21M3 19H21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
   plus:
     '<path d="M12 5V19M5 12H19" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
-  "drag-handle":
-    '<circle cx="9" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.4" fill="currentColor" stroke="none"/>',
   close:
     '<path d="M6.75827 17.2426L12.0009 12M17.2435 6.75736L12.0009 12M12.0009 12L6.75827 6.75736M12.0009 12L17.2435 17.2426" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/>',
   "arrow-left":

@@ -84,34 +84,7 @@ du-checklist-card .mf-row {
   gap: var(--omf-cx-gap-x-component-default, 8px);
   padding: 12px var(--omf-cx-padding-surface-base, 16px);
   background: var(--omf-cx-core-color-surface-layer-2, #f5f6f9);
-  border: 1px solid transparent;
   border-radius: var(--omf-cx-shape-radius-default, 8px);
-}
-du-checklist-card .mf-row.is-dragging {
-  opacity: 0.4;
-}
-du-checklist-card .mf-row.drop-before {
-  box-shadow: inset 0 2px 0 0 var(--omf-cx-core-color-primary, #0e45e3);
-}
-du-checklist-card .mf-row.drop-after {
-  box-shadow: inset 0 -2px 0 0 var(--omf-cx-core-color-primary, #0e45e3);
-}
-du-checklist-card .mf-handle {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  margin-left: -4px;
-  background: none;
-  border: 0;
-  border-radius: var(--omf-cx-shape-radius-default, 8px);
-  color: var(--omf-cx-core-color-body-moderate, #62738c);
-  cursor: grab;
-}
-du-checklist-card .mf-handle:focus-visible {
-  outline: 2px solid var(--omf-cx-core-color-primary, #0e45e3);
-  outline-offset: 1px;
 }
 /* File-type badge in the leading slot — document for PDFs, photo for images. */
 du-checklist-card .mf-type {

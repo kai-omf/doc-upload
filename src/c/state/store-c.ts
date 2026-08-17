@@ -234,33 +234,6 @@ class StoreC {
   addFile(id: string, file: File): void {
     this.addFiles(id, [file]);
   }
-  /** Reorder by final index (used by keyboard up/down). Clamps the target index. */
-  moveFile(id: string, fileId: string, toIndex: number): void {
-    const doc = this.getDoc(id);
-    if (!doc) return;
-    const from = doc.files.findIndex((f) => f.id === fileId);
-    if (from < 0) return;
-    const clamped = Math.max(0, Math.min(toIndex, doc.files.length - 1));
-    if (clamped === from) return;
-    const [moved] = doc.files.splice(from, 1);
-    doc.files.splice(clamped, 0, moved);
-    this.emit();
-  }
-  /** Reorder by dropping before another file (used by drag). `beforeFileId` null → move to the end. */
-  reorderFile(id: string, fileId: string, beforeFileId: string | null): void {
-    const doc = this.getDoc(id);
-    if (!doc || beforeFileId === fileId) return;
-    const from = doc.files.findIndex((f) => f.id === fileId);
-    if (from < 0) return;
-    const [moved] = doc.files.splice(from, 1);
-    let insertAt = doc.files.length;
-    if (beforeFileId != null) {
-      const idx = doc.files.findIndex((f) => f.id === beforeFileId);
-      if (idx >= 0) insertAt = idx;
-    }
-    doc.files.splice(insertAt, 0, moved);
-    this.emit();
-  }
   replaceFile(id: string, fileId: string, file: File): void {
     const doc = this.getDoc(id);
     const staged = doc?.files.find((f) => f.id === fileId);
